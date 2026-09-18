@@ -15,7 +15,7 @@ Release `1.0.0` was validated locally on September 18, 2026 with .NET SDK 10.0.4
 | Core tests | Pass: 11 |
 | SQLite/transport tests | Pass: 18 |
 | HTTP/API tests | Pass: 11 |
-| Merged coverage | Pass: 93.59% lines, 80.06% branches, 84.25% methods |
+| Merged coverage | Pass: 93.59% lines, 73.66% branches, 84.25% methods |
 | Deterministic offline/sync/conflict scenario | Pass |
 | Local performance/allocation budget | Pass |
 | Windows MAUI x64 release build | Pass |

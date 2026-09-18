@@ -21,4 +21,4 @@
 
 Keep changes focused. Explain the failure mode being addressed, list validation commands, call out
 schema or protocol compatibility, and identify manual checks. Dependency updates must retain exact
-versions in `Directory.Packages.props` and pass dependency review.
+versions in `Directory.Packages.props` and pass the locked NuGet vulnerability audit.

@@ -113,7 +113,7 @@ do not replace the [manual checklist](docs/reports/manual-accessibility-checklis
 | `src/FieldOps.Demo/` | Network-free scenario and local performance budget |
 | `tests/` | Unit, database, API, concurrency, negative, and property-style tests |
 | `tools/FieldOps.RepositoryChecks/` | Code-index generator and repository policy validation |
-| `.github/workflows/` | Least-privilege CI, CodeQL, and dependency review |
+| `.github/workflows/` | Least-privilege CI and CodeQL analysis |
 | `docs/` | Architecture, protocol, operations, security, limitations, ADRs, and evidence |
 
 [The file catalog](docs/file-catalog.md) summarizes every authored file group. The generated

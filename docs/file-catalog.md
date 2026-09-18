@@ -20,7 +20,7 @@
 | `tests/FieldOps.Api.Tests/*` | Full HTTP, idempotency, concurrency, and strict JSON tests |
 | `tools/FieldOps.RepositoryChecks/*` | Generated line index and repository policy enforcement |
 | `scripts/*` | Reproducible Unix/Windows verification entry points |
-| `.github/workflows/*` | CI, platform builds, CodeQL, and dependency review |
+| `.github/workflows/*` | CI, platform builds, and CodeQL analysis |
 | `docs/*` | Architecture, protocol, safety, operations, limitations, and evidence |
 
 Exact C# declaration lines are generated in [code-index.md](code-index.md).

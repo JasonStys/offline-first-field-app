@@ -18,7 +18,8 @@ text, and process/network interruption.
 - Errors return generic problem details and queue reasons are capped at 500 characters.
 - Diagnostics expose counts, not inspection text or stack traces.
 - Android backups and cleartext traffic are disabled.
-- Actions use least permissions and immutable commit pins; CodeQL and dependency review are enabled.
+- Actions use least permissions and immutable commit pins; CodeQL and locked NuGet auditing are
+  enabled.
 
 ## Deliberate non-controls
 

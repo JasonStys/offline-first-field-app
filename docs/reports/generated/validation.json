@@ -11,13 +11,13 @@
   },
   "coveragePercent": {
     "line": 93.59,
-    "branch": 80.06,
+    "branch": 73.66,
     "method": 84.25
   },
   "performance": {
-    "queueWriteP95Milliseconds": 6.264,
-    "searchMilliseconds": 28.03,
-    "allocatedBytes": 1559568,
+    "queueWriteP95Milliseconds": 6.049,
+    "searchMilliseconds": 25.471,
+    "allocatedBytes": 1559696,
     "passed": true
   },
   "platformBuilds": {

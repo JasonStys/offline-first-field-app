@@ -1,5 +1,5 @@
 # File: dependabot.yml
-# Purpose: Propose small weekly NuGet and GitHub Actions dependency updates.
+# Purpose: Propose grouped weekly NuGet and GitHub Actions dependency updates.
 version: 2
 updates:
   - package-ecosystem: nuget
@@ -7,10 +7,18 @@ updates:
     schedule:
       interval: weekly
       day: monday
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 2
+    groups:
+      nuget-dependencies:
+        patterns:
+          - "*"
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: weekly
       day: monday
-    open-pull-requests-limit: 3
+    open-pull-requests-limit: 2
+    groups:
+      action-dependencies:
+        patterns:
+          - "*"

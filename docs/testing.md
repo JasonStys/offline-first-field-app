@@ -27,7 +27,7 @@ contract drift, and platform-specific build breakage.
 | Concurrency | Integration | Twelve simultaneous stale writers; exactly one acceptance |
 | Performance | Budget | 100 transactional writes, prefix search, allocation ceiling |
 | Platforms | Build smoke | Release Android APK inputs and unpackaged Windows x64 client |
-| Security | Static/dependency | CodeQL, NuGet audit, dependency review, secret/content scan |
+| Security | Static/dependency | CodeQL, locked NuGet audit, secret/content scan |
 
 ## Coverage policy
 

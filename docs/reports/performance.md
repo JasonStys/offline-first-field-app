@@ -12,9 +12,9 @@
 
 | Metric | Measured | Budget | Result |
 | --- | ---: | ---: | --- |
-| Queue write p95 | 6.264 ms | 250 ms | Pass |
-| Prefix search | 28.030 ms | 500 ms | Pass |
-| Managed allocations | 1,559,568 bytes | 67,108,864 bytes | Pass |
+| Queue write p95 | 6.049 ms | 250 ms | Pass |
+| Prefix search | 25.471 ms | 500 ms | Pass |
+| Managed allocations | 1,559,696 bytes | 67,108,864 bytes | Pass |
 | Returned records | 100 | 100 | Pass |
 
 The guardrails are intentionally generous for heterogeneous hosted runners. They catch accidental

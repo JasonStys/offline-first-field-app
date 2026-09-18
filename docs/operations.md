@@ -63,7 +63,7 @@ production backup system for the intentionally volatile reference server.
 
 1. Update `CHANGELOG.md` and validation evidence.
 2. Run core verification and both platform builds.
-3. Run NuGet vulnerability checks and inspect CodeQL/dependency review.
+3. Run the locked NuGet vulnerability audit and inspect CodeQL results.
 4. Publish the API and verify `/healthz` from the artifact.
 5. Create an annotated version tag only after the exact commit is green.
 
