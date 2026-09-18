@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="FieldOps.App.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:domain="clr-namespace:FieldOps.Core;assembly=FieldOps.Core"
+    Title="Field inspections"
+    BackgroundColor="{StaticResource Surface}">
+    <Grid Padding="24" RowDefinitions="Auto,Auto,Auto,*" RowSpacing="16">
+        <VerticalStackLayout Spacing="4">
+            <Label FontAttributes="Bold" FontSize="28" Text="FieldOps Offline" />
+            <Label Text="Capture synthetic inspections without a network connection." />
+        </VerticalStackLayout>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto,Auto">
+            <Label Text="Inspection title" />
+            <Entry
+                Grid.Row="1"
+                AutomationId="inspection-title"
+                Placeholder="North loading bay"
+                SemanticProperties.Description="Required inspection title"
+                Text="{Binding Title}" />
+            <Label Grid.Column="1" Text="Notes" />
+            <Editor
+                Grid.Row="1"
+                Grid.Column="1"
+                AutomationId="inspection-notes"
+                AutoSize="TextChanges"
+                MaximumHeightRequest="120"
+                MinimumHeightRequest="44"
+                Placeholder="Describe the generated fixture"
+                SemanticProperties.Description="Optional inspection notes"
+                Text="{Binding Notes}" />
+            <HorizontalStackLayout Grid.Row="2" Grid.ColumnSpan="2" Margin="0,12,0,0" Spacing="12">
+                <Button
+                    AutomationId="save-offline"
+                    Clicked="OnSaveClicked"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                    Text="Save offline" />
+                <Button
+                    AutomationId="sync-now"
+                    Clicked="OnSyncClicked"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                    Text="Sync now" />
+            </HorizontalStackLayout>
+        </Grid>
+
+        <Border Grid.Row="2" Padding="12" Stroke="#B8C4CA" StrokeShape="RoundRectangle 8">
+            <Label
+                AutomationId="sync-status"
+                Text="{Binding StatusText}" />
+        </Border>
+
+        <CollectionView
+            Grid.Row="3"
+            AutomationId="inspection-history"
+            EmptyView="No inspections yet. Save one while offline."
+            ItemsSource="{Binding Inspections}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="domain:InspectionSnapshot">
+                    <Border Margin="0,0,0,8" Padding="12" Stroke="#D5DEE2" StrokeShape="RoundRectangle 8">
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                            <Label FontAttributes="Bold" Text="{Binding Title}" />
+                            <Label Grid.Column="1" Text="{Binding Status}" />
+                            <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Notes}" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,13 @@
+# File: .dockerignore
+# Purpose: Keep generated output, local packages, VCS data, and editor state out of build context.
+.git
+.github
+.packages
+.vs
+.vscode
+artifacts
+**/bin
+**/obj
+TestResults
+*.db
+*.log

@@ -1,0 +1,21 @@
+# File: .gitignore
+# Purpose: Exclude generated builds, packages, local databases, logs, and IDE state.
+bin/
+obj/
+TestResults/
+artifacts/
+.vs/
+.vscode/
+.idea/
+*.user
+*.db
+*.db-shm
+*.db-wal
+*.log
+*.trx
+coverage/
+.packages/
+*.msix
+*.apk
+.DS_Store
+Thumbs.db

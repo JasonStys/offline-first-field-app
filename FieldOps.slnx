@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/FieldOps.Api/FieldOps.Api.csproj" />
+    <Project Path="src/FieldOps.App/FieldOps.App.csproj" />
+    <Project Path="src/FieldOps.Core/FieldOps.Core.csproj" />
+    <Project Path="src/FieldOps.Demo/FieldOps.Demo.csproj" />
+    <Project Path="src/FieldOps.Infrastructure/FieldOps.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/FieldOps.Api.Tests/FieldOps.Api.Tests.csproj" />
+    <Project Path="tests/FieldOps.Core.Tests/FieldOps.Core.Tests.csproj" />
+    <Project Path="tests/FieldOps.Infrastructure.Tests/FieldOps.Infrastructure.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/FieldOps.RepositoryChecks/FieldOps.RepositoryChecks.csproj" />
+  </Folder>
+</Solution>
