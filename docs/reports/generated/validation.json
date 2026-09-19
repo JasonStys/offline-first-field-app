@@ -25,8 +25,9 @@
     "windowsX64": "passed-local"
   },
   "hosted": {
-    "ci": "pending-publication",
-    "codeql": "pending-publication"
+    "ci": "passed",
+    "codeql": "passed",
+    "openCodeScanningAlerts": 0
   },
   "manualAccessibility": "not-executed"
 }

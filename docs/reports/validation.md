@@ -23,8 +23,9 @@ Release `1.0.0` was validated locally on September 18, 2026 with .NET SDK 10.0.4
 | Repository headers, links, policy, action pins | Pass |
 | NuGet vulnerability audit | Pass: no known vulnerable packages reported |
 | API publish | Pass |
-| Non-root container and HTTP smoke | Pending hosted workflow |
-| GitHub Actions CI and CodeQL | Pending publication |
+| Non-root container and HTTP smoke | Pass on hosted Linux runner |
+| GitHub Actions CI | Pass: all four jobs on `main` |
+| CodeQL | Pass: zero open code-scanning alerts |
 
 ## Commands
 
@@ -35,6 +36,9 @@ Release `1.0.0` was validated locally on September 18, 2026 with .NET SDK 10.0.4
 Windows platform verification uses `scripts/verify.ps1`. Generated coverage artifacts are excluded
 from Git but uploaded by CI. The machine-readable release summary is
 [`generated/validation.json`](generated/validation.json).
+
+Hosted evidence: [CI run](https://github.com/JasonStys/offline-first-field-app/actions/runs/35407377407)
+and [CodeQL run](https://github.com/JasonStys/offline-first-field-app/actions/runs/35407377469).
 
 ## Claim boundary
 
