@@ -28,7 +28,7 @@ jobs:
         with:
           dotnet-version: 10.0.401
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        uses: github/codeql-action/init@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3; coordinated version
         with:
           languages: csharp
       - name: Restore dependencies
@@ -36,4 +36,4 @@ jobs:
       - name: Build analyzed source
         run: dotnet build FieldOps.CI.slnx -c Release --no-restore
       - name: Analyze
-        uses: github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        uses: github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3; coordinated version
