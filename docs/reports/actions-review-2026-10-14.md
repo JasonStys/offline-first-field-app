@@ -12,7 +12,14 @@ completed with zero warnings/errors, and all 40 tests passed (11 core, 18
 infrastructure, 11 API; no skips). Native Windows/Android MAUI, containers and
 CodeQL must pass on Actions independently. Local workload and sandbox access
 errors were environmental; no local workload, Docker or OS security repair was
-performed. Final CI links will be appended after native verification.
+performed. Accepted source: 88d237f773d421e7454b133b1cda3e47ea47ad53.
+[CI 38639670119](https://github.com/JasonStys/offline-first-field-app/actions/runs/38639670119)
+passed core/API/evidence, Windows MAUI, Android MAUI and non-root container jobs.
+[CodeQL 38639670137](https://github.com/JasonStys/offline-first-field-app/actions/runs/38639670137)
+passed. The repaired existing PR remains available for separate merge review;
+no unrelated updates were merged. Documentation-only commits use current path
+filters, so the source acceptance above remains the measured native evidence.
+Approved cleanup may remove historical URLs; all available evidence is privately archived.
 
 Old dependency-review run 35406175627 failed because the provider feature was
 unavailable. That workflow has already been removed from current source; it is
