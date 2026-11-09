@@ -12,7 +12,7 @@ using Microsoft.Data.Sqlite;
 namespace FieldOps.Infrastructure;
 
 /// <summary>Direct, parameterized SQLite implementation of the offline field store.</summary>
-public sealed class LocalFieldStore(string databasePath) : ILocalFieldStore
+public sealed partial class LocalFieldStore(string databasePath) : ILocalFieldStore
 {
     private const int MaximumSearchResults = 200;
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
@@ -58,6 +58,19 @@ public sealed class LocalFieldStore(string databasePath) : ILocalFieldStore
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken)
             .ConfigureAwait(false);
 
+        await EnsureNoOtherWorkAsync(connection, transaction, record.Id, null, cancellationToken)
+            .ConfigureAwait(false);
+        var baseline = await FindInspectionAsync(connection, transaction, record.Id, cancellationToken)
+            .ConfigureAwait(false);
+        if (baseline is not null && baseline.Version != record.Version)
+        {
+            throw new InvalidOperationException("The local inspection changed. Reload before editing.");
+        }
+        if (baseline?.Version == 0)
+        {
+            baseline = null; // A never-accepted draft is not evidence of a previous server value.
+        }
+
         await UpsertInspectionAsync(connection, transaction, record, cancellationToken)
             .ConfigureAwait(false);
 
@@ -80,6 +93,8 @@ public sealed class LocalFieldStore(string databasePath) : ILocalFieldStore
         enqueue.Parameters.AddWithValue("$recordJson", Serialize(record));
         enqueue.Parameters.AddWithValue("$state", (int)QueueState.Pending);
         await enqueue.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+        await SaveBaselineAsync(connection, transaction, mutation.MutationId, baseline, cancellationToken)
+            .ConfigureAwait(false);
         await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
     }
 
@@ -209,6 +224,11 @@ public sealed class LocalFieldStore(string databasePath) : ILocalFieldStore
             localJson = (string?)await select.ExecuteScalarAsync(cancellationToken)
                 .ConfigureAwait(false)
                 ?? throw new InvalidOperationException("Conflict mutation does not exist locally.");
+        }
+
+        if (Deserialize<InspectionSnapshot>(localJson).Id != remote.Id)
+        {
+            throw new ArgumentException("Remote conflict evidence must describe the same inspection.");
         }
 
         await using (var insert = connection.CreateCommand())
@@ -487,14 +507,18 @@ public sealed class LocalFieldStore(string databasePath) : ILocalFieldStore
 
     private static string ReadMigration()
     {
-        const string suffix = "Migrations.001_initial.sql";
         var assembly = typeof(LocalFieldStore).Assembly;
-        var name = assembly.GetManifestResourceNames()
-            .Single(resource => resource.EndsWith(suffix, StringComparison.Ordinal));
-        using var stream = assembly.GetManifestResourceStream(name)
-            ?? throw new InvalidOperationException("Embedded migration was not found.");
-        using var reader = new StreamReader(stream);
-        return reader.ReadToEnd();
+        return string.Join("\n", assembly.GetManifestResourceNames()
+            .Where(resource => resource.Contains(".Migrations.", StringComparison.Ordinal)
+                && resource.EndsWith(".sql", StringComparison.Ordinal))
+            .Order(StringComparer.Ordinal)
+            .Select(name =>
+            {
+                using var stream = assembly.GetManifestResourceStream(name)
+                    ?? throw new InvalidOperationException("Embedded migration was not found.");
+                using var reader = new StreamReader(stream);
+                return reader.ReadToEnd();
+            }));
     }
 
     private static string Serialize<T>(T value) => JsonSerializer.Serialize(value, JsonOptions);

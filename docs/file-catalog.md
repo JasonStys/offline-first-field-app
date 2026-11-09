@@ -9,6 +9,10 @@
 | `src/FieldOps.Core/*.cs` | Validated domain types, merge policy, sync DTOs, and abstractions |
 | `src/FieldOps.Infrastructure/Migrations/*.sql` | Idempotent local SQLite schema |
 | `src/FieldOps.Infrastructure/LocalFieldStore.cs` | Transactional cache/outbox/conflict/cursor implementation |
+| `src/FieldOps.Infrastructure/ConflictWorkflows.cs` | Bounded conflict reads and stale-checked atomic replacement mutations |
+| `src/FieldOps.Core/ConflictReview.cs` | Immutable review evidence and validated explicit field-choice policy |
+| `src/FieldOps.App/ConflictFieldChoice.cs` | Conservative three-way recommendations and required-choice bindings |
+| `tests/FieldOps.Infrastructure.Tests/ConflictWorkflowTests.cs` | SQLite and portable MAUI review journeys, migration and stale-version regressions |
 | `src/FieldOps.Infrastructure/AttachmentFileStore.cs` | Bounded streaming attachment lifecycle |
 | `src/FieldOps.Infrastructure/HttpSyncGateway.cs` | Strict HTTP transport adapter |
 | `src/FieldOps.Infrastructure/SyncCoordinator.cs` | Recovery, push outcomes, pull, and retry state |

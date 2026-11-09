@@ -4,8 +4,9 @@
   results. That makes protocol behavior inspectable but is not production durability.
 - The API has no authentication, authorization, tenant isolation, or rate limiting. Keep it local.
 - Local database and attachment encryption rely on future platform integration.
-- Version one captures text and implements attachment storage, but the dashboard does not yet expose
-  attachment selection or conflict-resolution screens.
+- The dashboard exposes explicit text conflict review but does not yet expose attachment selection.
+- Older queued work without an original recorded snapshot cannot reconstruct that snapshot; the
+  review labels its baseline unavailable and requires explicit choices for different values.
 - Synchronization processes one bounded page per operator-triggered cycle; no background scheduler or
   automatic backoff is claimed.
 - Android and Windows compile in automation. iOS/Mac Catalyst source targets are intentionally not

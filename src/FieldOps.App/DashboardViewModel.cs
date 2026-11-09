@@ -1,5 +1,5 @@
 // File: DashboardViewModel.cs
-// Purpose: Present offline draft creation, search history, sync status, and retry-safe failures.
+// Purpose: Present offline drafts, synchronization and explicit base/local/remote conflict review.
 // Symbols and line locations: see docs/code-index.md.
 // Important state: inspections is observable UI state; IsBusy prevents overlapping operations.
 
@@ -19,10 +19,35 @@ public sealed class DashboardViewModel(LocalFieldStore store, SyncCoordinator co
     private string notes = string.Empty;
     private string statusText = "Ready for offline work.";
     private bool isBusy;
+    private ConflictReview? selectedConflict;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public ObservableCollection<InspectionSnapshot> Inspections { get; } = [];
+    public ObservableCollection<ConflictReview> Conflicts { get; } = [];
+    public ObservableCollection<ConflictFieldChoice> ConflictFields { get; } = [];
+    public bool HasConflictReview => selectedConflict is not null;
+
+    public ConflictReview? SelectedConflict
+    {
+        get => selectedConflict;
+        set
+        {
+            if (value == selectedConflict) return;
+            SetField(ref selectedConflict, value);
+            ConflictFields.Clear();
+            if (value is not null)
+            {
+                ConflictFields.Add(new("TemplateId", value.Baseline?.TemplateId, value.Local.TemplateId, value.Remote.TemplateId));
+                ConflictFields.Add(new("Title", value.Baseline?.Title, value.Local.Title, value.Remote.Title));
+                ConflictFields.Add(new("Notes", value.Baseline?.Notes, value.Local.Notes, value.Remote.Notes));
+                ConflictFields.Add(new("Status", value.Baseline?.Status.ToString(), value.Local.Status.ToString(), value.Remote.Status.ToString()));
+                StatusText = $"Review all fields against remote version {value.Remote.Version}. Divergent fields need your choice.";
+            }
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasConflictReview)));
+        }
+    }
 
     public string Title
     {
@@ -113,6 +138,52 @@ public sealed class DashboardViewModel(LocalFieldStore store, SyncCoordinator co
             });
     }
 
+    /// <summary>Save chosen values locally as a fresh version-checked command; no network is required.</summary>
+    public async Task ResolveSelectedConflictAsync()
+    {
+        await RunAsync(async () =>
+        {
+            var review = SelectedConflict;
+            if (review is null)
+            {
+                StatusText = "Select a conflict to review first.";
+                return;
+            }
+            var missing = ConflictFields.FirstOrDefault(field => field.SelectedIndex < 0);
+            if (missing is not null)
+            {
+                StatusText = $"Choose the local or remote value for {missing.Name}.";
+                return;
+            }
+            var choices = ConflictFields.ToDictionary(field => field.Name, field => field.GetSelection(), StringComparer.Ordinal);
+            try
+            {
+                await store.ResolveConflictAsync(review, choices, "field-app-device");
+            }
+            catch (InvalidOperationException)
+            {
+                await ReloadAsync();
+                StatusText = "Conflict evidence changed or other queued work prevents resolution. Select and review the latest values.";
+                return;
+            }
+            catch (ArgumentException)
+            {
+                StatusText = "Resolution values are invalid. Review every field before saving.";
+                return;
+            }
+            SelectedConflict = null;
+            await ReloadAsync();
+            StatusText = "Resolution saved offline and queued. Sync now when connected; newer remote edits will require another review.";
+        });
+    }
+
+    /// <summary>Leave all persisted evidence and queued commands unchanged.</summary>
+    public void CancelConflictReview()
+    {
+        SelectedConflict = null;
+        StatusText = "Review canceled. Both versions remain saved for later review.";
+    }
+
     private async Task ReloadAsync()
     {
         var records = await store.SearchAsync(null, 100);
@@ -121,6 +192,11 @@ public sealed class DashboardViewModel(LocalFieldStore store, SyncCoordinator co
         {
             Inspections.Add(record);
         }
+
+        SelectedConflict = null;
+        var conflicts = await store.GetConflictsAsync(100);
+        Conflicts.Clear();
+        foreach (var conflict in conflicts) Conflicts.Add(conflict);
     }
 
     private async Task RunAsync(Func<Task> operation)

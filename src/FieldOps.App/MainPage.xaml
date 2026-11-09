@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:domain="clr-namespace:FieldOps.Core;assembly=FieldOps.Core"
+    xmlns:app="clr-namespace:FieldOps.App"
     Title="Field inspections"
     BackgroundColor="{StaticResource Surface}">
     <Grid Padding="24" RowDefinitions="Auto,Auto,Auto,*" RowSpacing="16">
@@ -56,6 +57,48 @@
             AutomationId="inspection-history"
             EmptyView="No inspections yet. Save one while offline."
             ItemsSource="{Binding Inspections}">
+            <CollectionView.Header>
+                <VerticalStackLayout Margin="0,0,0,16" Spacing="12">
+                    <Label FontAttributes="Bold" FontSize="20" Text="Resolve synchronization conflicts" />
+                    <Label Text="Choose an unresolved inspection below. Review original, local and server values before saving. Review works offline; the next sync still checks server versions. Use synthetic data on an isolated development endpoint." />
+                    <Picker
+                        AutomationId="conflict-selector"
+                        Title="Unresolved conflicts (up to 100; empty when none)"
+                        ItemDisplayBinding="{Binding Local.Title}"
+                        ItemsSource="{Binding Conflicts}"
+                        SelectedItem="{Binding SelectedConflict, Mode=TwoWay}"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" />
+                    <VerticalStackLayout IsVisible="{Binding HasConflictReview}" Spacing="12">
+                        <Label Text="Matching and disjoint changes are preselected using the recorded base. Changed-on-both-sides fields require a choice. You may override any selection. Empty notes are a valid value." />
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding ConflictFields}" Spacing="12">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="app:ConflictFieldChoice">
+                                    <Border Padding="12" Stroke="#B8C4CA" StrokeShape="RoundRectangle 8">
+                                        <VerticalStackLayout Spacing="6">
+                                            <Label FontAttributes="Bold" Text="{Binding Name}" />
+                                            <Label Text="Original base" FontAttributes="Bold" />
+                                            <Label Text="{Binding BaselineValue}" />
+                                            <Label Text="Your local value" FontAttributes="Bold" />
+                                            <Label Text="{Binding LocalValue}" />
+                                            <Label Text="Server value at conflict" FontAttributes="Bold" />
+                                            <Label Text="{Binding RemoteValue}" />
+                                            <Label Text="Both sides differ: choose a value." IsVisible="{Binding RequiresChoice}" />
+                                            <Picker Title="Choose value to keep" ItemsSource="{Binding Options}" SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" />
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                        <HorizontalStackLayout Spacing="12">
+                            <Button AutomationId="save-resolution" Text="Save resolution offline" Clicked="OnResolveClicked"
+                                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" />
+                            <Button AutomationId="cancel-resolution" Text="Cancel review" Clicked="OnCancelReviewClicked"
+                                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                    <Label FontAttributes="Bold" FontSize="20" Text="Local inspections" />
+                </VerticalStackLayout>
+            </CollectionView.Header>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="domain:InspectionSnapshot">
                     <Border Margin="0,0,0,8" Padding="12" Stroke="#D5DEE2" StrokeShape="RoundRectangle 8">

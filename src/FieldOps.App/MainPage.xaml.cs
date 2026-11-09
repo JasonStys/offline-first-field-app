@@ -35,4 +35,16 @@ public partial class MainPage : ContentPage
         await viewModel.SynchronizeAsync();
         SemanticScreenReader.Default.Announce(viewModel.StatusText);
     }
+
+    private async void OnResolveClicked(object? sender, EventArgs eventArgs)
+    {
+        await viewModel.ResolveSelectedConflictAsync();
+        SemanticScreenReader.Default.Announce(viewModel.StatusText);
+    }
+
+    private void OnCancelReviewClicked(object? sender, EventArgs eventArgs)
+    {
+        viewModel.CancelConflictReview();
+        SemanticScreenReader.Default.Announce(viewModel.StatusText);
+    }
 }

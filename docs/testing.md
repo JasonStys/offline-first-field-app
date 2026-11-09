@@ -22,6 +22,7 @@ contract drift, and platform-specific build breakage.
 | Merge policy | Unit/property-style | Disjoint changes, dual text edit, 1,000 seeded cases |
 | Coordinator | Unit/contract | Applied/conflict/reject routing and failed-transport retry |
 | SQLite | Integration | Idempotent migration, atomic outbox, crash recovery, wildcard escaping |
+| Conflict review | User journey/integration | Real SQLite + portable MAUI view model: cancel, divergent choices, empty notes, stale evidence, fresh server conflict, legacy migration |
 | Attachments | Integration/negative | Streaming hash, size cap, type allowlist, partial cleanup |
 | API | HTTP integration | Health, bounds, strict JSON, duplicate replay, cursor pull |
 | Concurrency | Integration | Twelve simultaneous stale writers; exactly one acceptance |
@@ -54,3 +55,8 @@ Platform commands and recovery drills are in [operations](operations.md). Exact 
 - The server reference store is intentionally volatile, so database failover is out of scope.
 - Network shaping is represented by deterministic exceptions, not radio-level mobile simulation.
 - Attachment resumption is not implemented, so resumable-upload chaos tests would be premature.
+
+The view-model journey tests compile the actual portable dashboard and field-choice source into the
+infrastructure test project without introducing a MAUI runtime dependency. They verify the same
+commands/bindings used by the screen, but do not claim native screen rendering or device interaction.
+New observed local results are in [the workflow report](reports/practical-workflows-2026-11-09.md).
