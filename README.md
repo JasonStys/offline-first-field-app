@@ -23,7 +23,8 @@ dotnet run --project src/FieldOps.Demo --configuration Release
 ```
 
 The deterministic demo creates a record offline, writes it and its outbox command in one SQLite
-transaction, synchronizes it, then demonstrates a text conflict without requiring a running server.
+transaction, synchronizes it, then simulates a second writer, records a text conflict, explicitly
+chooses fields, and synchronizes a fresh resolution to version 3 without requiring a running server.
 
 Run the API separately:
 
@@ -41,7 +42,7 @@ described in [operations](docs/operations.md).
   screen-reader announcements, responsive layout, and complete offline draft capture.
 - Direct parameterized SQLite access, WAL journaling, constraints, migrations, transactions,
   bounded queries, escaped GLOB-prefix search, and a durable outbox capped at 10,000 commands.
-- An `O(1)` append-only queue insertion with constant-time capacity enforcement, indexed
+- Constant-time queue-capacity enforcement, an indexed check preventing overlapping drafts, indexed
   `O(log n)` identity lookup, `O(k)` bounded batch handling, and `O(f)` three-way field merge where
   `f` is fixed.
 - Idempotency keys, optimistic versions, ordered delta cursors, duplicate replay, partial outcomes,
@@ -79,11 +80,17 @@ See [architecture](docs/architecture.md), [data model](docs/data-model.md), and
 | Offline inspection capture | Validates and stores a record plus outbox mutation atomically |
 | Crash recovery | Resets interrupted in-flight commands to pending on the next sync |
 | Bounded synchronization | Pushes at most 100 and pulls at most 200 records per request |
-| Conflict handling | Returns the current server record and identifies conflicting fields |
+| Conflict review | Shows original/local/remote field evidence, requires choices for divergent edits, and queues a fresh version-checked resolution offline |
 | Duplicate delivery | Replays the original result by mutation ID without creating a second change |
 | Attachments | Streams JPEG/PNG fixtures, caps them at 5 MiB, and records SHA-256 integrity |
 | Diagnostics | Reports non-sensitive counts and explicit applied/conflicted/rejected totals |
 | Local search | Uses parameterized, index-backed prefix matching with escaped GLOB input |
+
+### Resolve an inspection conflict
+
+After **Sync now** reports a conflict, select it in **Resolve synchronization conflicts**. Review the recorded original, your local value and the server value for each field. Disjoint changes are preselected; fields changed differently by both writers require an explicit local/remote choice. Empty notes can be selected deliberately. **Cancel review** leaves both copies untouched. **Save resolution offline** replaces the blocked command atomically with a new idempotency key and the reviewed server version. Sync it when connected; a newer server edit produces another review rather than being overwritten. Older pending drafts with no recorded base display that fact and never invent previous content.
+
+This remains an isolated synthetic reference app: the API has no authentication, tenant separation or encrypted local storage. See the [security model](docs/security.md) before using any real data. The new workflow does not broaden network exposure.
 
 ## Verification
 
@@ -101,6 +108,9 @@ index. MAUI platform builds run in dedicated GitHub Actions jobs.
 Current exact results are in [validation.md](docs/reports/validation.md), with the machine-readable
 summary in [validation.json](docs/reports/generated/validation.json). Automated accessibility checks
 do not replace the [manual checklist](docs/reports/manual-accessibility-checklist.md).
+The latest offline review changes and observed local results are in the
+[2026-11-09 workflow report](docs/reports/practical-workflows-2026-11-09.md); native platform CI is
+tracked separately from the portable view-model tests.
 
 ## Repository map
 

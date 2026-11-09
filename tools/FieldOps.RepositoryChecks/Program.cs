@@ -38,7 +38,7 @@ static int WriteIndex(string root, bool checkOnly)
 {
     var declarations = new List<(string Path, int Line, string Kind, string Name)>();
     var declarationPattern = new Regex(
-        @"^\s*(?:public|internal|private|protected)?\s*(?:sealed|static|partial|abstract|readonly)?\s*(class|record|interface|enum|struct)\s+([A-Za-z_][A-Za-z0-9_]*)",
+        @"^\s*(?:public|internal|private|protected)?\s*(?:(?:sealed|static|partial|abstract|readonly)\s+)*(class|record|interface|enum|struct)\s+([A-Za-z_][A-Za-z0-9_]*)",
         RegexOptions.CultureInvariant);
     var methodPattern = new Regex(
         @"^\s*(?:public|internal|private|protected)\s+(?:static\s+|async\s+|override\s+|virtual\s+|sealed\s+|partial\s+)*(?:[A-Za-z_][A-Za-z0-9_<>?,.\[\]\s]*\s+)([A-Za-z_][A-Za-z0-9_]*)\s*\(",

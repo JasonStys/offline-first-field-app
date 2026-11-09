@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-09",
+  "scope": "explicit offline conflict review",
+  "tests": {
+    "core": 11,
+    "infrastructure_and_view_model": 35,
+    "api": 11,
+    "total": 57
+  },
+  "coverage": {
+    "line_percent": 94.61,
+    "branch_percent": 77.27,
+    "threshold_line_percent": 80,
+    "platform_neutral_only": true
+  },
+  "passed": [
+    "locked restore",
+    "format check",
+    "Release build with zero warnings/errors",
+    "57 domain/SQLite/view-model/HTTP tests",
+    "merged Coverlet release threshold",
+    "synthetic conflict -> fresh mutation -> accepted version 3 demo",
+    "100-write/search/allocation budget",
+    "API publish",
+    "repository policy and generated source index",
+    "NuGet vulnerability audit (none reported)"
+  ],
+  "not_run": [
+    "native Android/Windows MAUI build or device GUI interaction",
+    "GitHub Actions (coordinated separately)"
+  ],
+  "boundaries": [
+    "isolated synthetic development API; no authentication/tenant separation",
+    "local SQLite remains unencrypted",
+    "older drafts may have no baseline; no baseline is fabricated",
+    "review shows up to 100 conflicts from a 200-item bounded store API"
+  ]
+}

@@ -8,11 +8,13 @@
 | `outbox_commands` | Durable outbound work | Unique mutation ID; state/sequence index; record foreign key |
 | `queue_guard` | Constant-time durable queue bound | Singleton count and 10,000-command check |
 | `conflicts` | Local and remote snapshots awaiting review | Mutation ID primary key |
+| `mutation_baselines` | Original snapshot for newly queued work; null/missing means unknown | Mutation foreign key with cascade deletion |
 | `sync_checkpoint` | Last fully applied pull cursor | Singleton check and non-negative cursor |
 | `schema_history` | Applied schema versions | Integer primary key |
 
-Migration `001_initial.sql` is embedded in `FieldOps.Infrastructure`, runs idempotently, enables
-foreign keys and WAL, and records version 1. All application values use parameters; no external text
+Embedded migrations run in ordinal order and idempotently. `001_initial.sql` enables foreign keys
+and WAL; `002_conflict_review.sql` adds optional mutation baselines and a record/state index without
+fabricating data for existing commands. All application values use parameters; no external text
 is concatenated into SQL.
 
 ## Transaction boundaries
@@ -22,6 +24,10 @@ is concatenated into SQL.
 - Selecting work and changing it from pending to in-flight occurs in one transaction.
 - Accepting a push updates the local server version and removes its command atomically.
 - Recording a conflict stores both snapshots and changes queue state atomically.
+- Resolving a conflict compares the reviewed evidence again, replaces its command, saves selected
+  fields at the remote version and records the remote snapshot as the new mutation base atomically.
+- An indexed check refuses overlapping unsynchronized edits to the same inspection, preventing a
+  later queued edit from being silently discarded by a resolution.
 - Applying a pull page updates eligible records and advances the cursor atomically.
 
 ## Version semantics

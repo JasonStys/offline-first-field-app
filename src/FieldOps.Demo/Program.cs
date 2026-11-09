@@ -31,13 +31,30 @@ static async Task<int> RunScenarioAsync()
             DateTimeOffset.UnixEpoch).Value!;
         await store.SaveDraftAsync(offlineRecord, "demo-device");
 
-        var coordinator = new SyncCoordinator(store, new DeterministicGateway());
+        var gateway = new DeterministicGateway();
+        var coordinator = new SyncCoordinator(store, gateway);
         var report = await coordinator.SynchronizeAsync();
         var synchronized = (await store.SearchAsync("North", 10)).Single();
         var baseline = synchronized;
         var local = baseline with { Notes = "Local reviewer changed this note." };
         var remote = baseline with { Notes = "Remote reviewer changed this note.", Version = 2 };
         var conflict = ConflictMergePolicy.Merge(baseline, local, remote);
+
+        // A second synthetic writer advances the server while this device is offline.
+        await store.SaveDraftAsync(local, "demo-device");
+        await gateway.PushAsync(new PushRequest([
+            new InspectionMutation(Guid.NewGuid(), "supervisor-demo", baseline.Version,
+                remote with { Version = baseline.Version }),
+        ]));
+        var conflictReport = await coordinator.SynchronizeAsync();
+        var review = (await store.GetConflictsAsync()).Single();
+        var choices = ConflictResolutionPolicy.FieldNames.ToDictionary(
+            field => field,
+            field => field == "Notes" ? ResolutionSide.Local : ResolutionSide.Remote,
+            StringComparer.Ordinal);
+        var replacementId = await store.ResolveConflictAsync(review, choices, "demo-device");
+        var resolutionReport = await coordinator.SynchronizeAsync();
+        var resolved = (await store.SearchAsync("North", 10)).Single();
 
         WriteJson(
             new
@@ -48,8 +65,15 @@ static async Task<int> RunScenarioAsync()
                 synchronized.Version,
                 conflict.HasConflict,
                 conflict.ConflictingFields,
+                conflictReport,
+                resolutionReport,
+                resolutionUsesNewMutation = replacementId != review.MutationId,
+                resolvedVersion = resolved.Version,
+                chosenNotes = resolved.Notes,
             });
-        return conflict.HasConflict && report.Applied == 1 ? 0 : 1;
+        return conflict.HasConflict && report.Applied == 1 && conflictReport.Conflicted == 1
+            && resolutionReport.Applied == 1 && resolved.Notes == local.Notes
+            && (await store.GetConflictsAsync()).Count == 0 ? 0 : 1;
     }
     finally
     {

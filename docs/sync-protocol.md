@@ -46,8 +46,15 @@ The three-way merge compares baseline, local, and remote values per field:
 2. If both sides changed to the same value, use that value.
 3. If both sides changed differently, return the field name and no merged record.
 
-User-authored text therefore never uses silent last-write-wins. A future resolution screen can show
-both snapshots and submit a new mutation at the current remote version.
+The MAUI review screen shows all four fields with original/local/server evidence. Disjoint edits
+receive a transparent recommendation; divergent edits require explicit choices. A missing baseline
+from an older draft is shown as unavailable, and differing values must be chosen deliberately.
+Cancel does not change persisted state. Saving rechecks the exact displayed evidence inside the
+SQLite transaction, replaces the blocked mutation with a fresh idempotency key, preserves the
+reviewed remote version as `ExpectedVersion`, and queues the result without a network call. If
+evidence changed while open, the view reloads it and refuses stale choices. If the server changes
+afterward, normal optimistic concurrency creates another conflict with the previously reviewed
+server snapshot as the new base. No force-write or silent last-write-wins endpoint exists.
 
 ## Compatibility
 
