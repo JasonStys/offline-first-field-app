@@ -153,10 +153,16 @@ it must not be exposed publicly. Review [SECURITY.md](SECURITY.md) and the docum
 ## Roadmap
 
 1. Add an authenticated production adapter and encrypted platform secret storage.
-2. Add explicit conflict-resolution screens backed by the existing merge outcome model.
+2. Extend the implemented conflict-resolution screens with real-device usability and accessibility validation.
 3. Add signed resumable attachment upload and background platform scheduling.
 4. Add Appium device-farm automation after a hosted device environment is selected.
 
 ## License
 
 [MIT](LICENSE)
+
+## Documentation editions
+
+Start with the [organized handbook](docs/handbook.md) for current usage, design, security and test guidance. Reviewed downloadable editions: [project-guide.docx](docs/reports/project-guide.docx).
+
+[Publication identities and source scope](docs/reports/publications.json) · [Documentation validation record](docs/reports/documentation-refresh-2026-11-09.md). Historical results retain their own tested revision and date.
