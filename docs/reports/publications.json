@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "project": "offline-first-field-app",
+  "author": "Jason Stys",
+  "editionDate": "2026-11-09",
+  "sourceBaseline": "c5471bc43c1a6296c785aeab40310ae227b2d295",
+  "sourceUrl": "https://github.com/JasonStys/offline-first-field-app/tree/c5471bc43c1a6296c785aeab40310ae227b2d295",
+  "functionalEvidenceBaseline": "c5471bc43c1a6296c785aeab40310ae227b2d295",
+  "evidenceObservedAt": "2026-11-10T05:25:40.628667+00:00",
+  "workflowEvidence": [
+    {
+      "conclusion": "success",
+      "databaseId": 42698069971,
+      "event": "push",
+      "headSha": "c5471bc43c1a6296c785aeab40310ae227b2d295",
+      "name": "CodeQL",
+      "status": "completed",
+      "url": "https://github.com/JasonStys/offline-first-field-app/actions/runs/42698069971"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 42698069942,
+      "event": "push",
+      "headSha": "c5471bc43c1a6296c785aeab40310ae227b2d295",
+      "name": "CI",
+      "status": "completed",
+      "url": "https://github.com/JasonStys/offline-first-field-app/actions/runs/42698069942"
+    }
+  ],
+  "summary": "Resolve base/local/server conflicts using explicit choices for divergent fields, stale-version checks and atomic replacement of queued writes.",
+  "rationale": "Makes offline editing recoverable without silently overwriting another person's changes or fabricating a missing base.",
+  "limitations": [
+    "Isolated synthetic development API with no authentication or tenant separation; not a hosted multi-user field service.",
+    "Local SQLite is unencrypted. Older drafts may lack a base revision, which the resolver does not fabricate.",
+    "Conflict review shows at most 100 entries from a 200-item bounded store API.",
+    "MAUI compilation and portable view-model journeys are not real-device GUI validation; no updated native release accompanies this upgrade."
+  ],
+  "documents": [
+    {
+      "filename": "project-guide.docx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "bytes": 45215,
+      "sha256": "3dbdb58599c5b63377fbf9cf3c3ebd041660d94ae5f6bb22e8c590e82daba8f1",
+      "sourceBaseline": "c5471bc43c1a6296c785aeab40310ae227b2d295",
+      "visualReview": {
+        "approved": true,
+        "method": "Every rendered page individually viewed at readable original resolution",
+        "pageCount": 6,
+        "renderedPageSha256": {
+          "page-1.png": "1c1d16fac324379e0b876c27c1f9dba8405cd8110fd4b012fd2216baae014024",
+          "page-2.png": "0b3221735e8a022571417bd2dd5b6a04e9ae0a954ccc7ef6d5a8a1715f63f174",
+          "page-3.png": "a083417e93543c4a424af83b19ecb4ad3f6d8893f91c292fdcc5a6d9feec76cb",
+          "page-4.png": "0d00dac687035aa336fd8c709bd624ad20c7bd33c69911c5a23299972f8b3d32",
+          "page-5.png": "f9d6bd062a562caad43daa334ed7c34f3b48d345867a50c261b66968b8338798",
+          "page-6.png": "a63a76884043397e45b6df60e509b02ee7fedffa1e198505f8221e0382a1f059"
+        }
+      }
+    }
+  ],
+  "scope": "Reviewed documentation editions of the cited source. Checksums identify bytes, not authorship. Historical measurements retain their own dates; integration CI must be checked separately."
+}

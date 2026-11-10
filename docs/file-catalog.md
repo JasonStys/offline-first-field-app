@@ -28,3 +28,12 @@
 | `docs/*` | Architecture, protocol, safety, operations, limitations, and evidence |
 
 Exact C# declaration lines are generated in [code-index.md](code-index.md).
+
+## Reviewed documentation editions
+
+| File | Responsibility |
+| --- | --- |
+| `docs/handbook.md` | Organized usage, architecture, security and evidence navigation |
+| `docs/reports/project-guide.docx` | Reviewed source-bound Word guide with dated results and practical limits |
+| `docs/reports/publications.json` | Exact publication hashes and page review identities |
+| `docs/reports/documentation-refresh-2026-11-09.md` | Actual documentation integration checks and their scope |
