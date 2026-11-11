@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "repository": "offline-first-field-app",
+  "runtimeVersion": "1.1.0",
+  "runtimeSource": "514913be78a45876ad90a8ced6d9cbeaecbb4b37",
+  "createdAt": "2026-11-11T11:13:54.947Z",
+  "author": "Jason Stys",
+  "document": "windows-application-guide-1.1.0.docx",
+  "sha256": "aaeacf9d5f744c3ad24d1d38d20e712cfc6abb666109bdf3dc6fca9e2304cee5",
+  "screenshots": [
+    {
+      "file": "native-inspections.png",
+      "sha256": "efcaaf2f7314042e5506baac3c3324db6045c636e9e19ebbc45d79c1c86232c6",
+      "width": 1898,
+      "height": 1339,
+      "caption": "The installed MAUI app displays the retained synthetic inspection at accepted version 2 after synchronization: one applied command, zero conflicts and one pulled record."
+    },
+    {
+      "file": "native-conflict-review.png",
+      "sha256": "5e494c7953ba10918f5411d833f8301a2677f683f745aa81878e9dfa44794aa4",
+      "width": 1898,
+      "height": 1339,
+      "caption": "The same installed application exposes its explicit conflict-review workflow; competing versions remain evidence for the technician rather than being silently overwritten."
+    }
+  ],
+  "snippets": [
+    {
+      "file": "src/FieldOps.App/App.xaml.cs",
+      "first": 37,
+      "last": 54,
+      "sha256": "4aa763d6fb3f9ae0b78b708f6148aa089d1867f542e5ae2829a36bc383d621bc",
+      "url": "https://github.com/JasonStys/offline-first-field-app/blob/514913be78a45876ad90a8ced6d9cbeaecbb4b37/src/FieldOps.App/App.xaml.cs#L37"
+    }
+  ],
+  "observedTests": [
+    {
+      "name": "Actual installed MAUI",
+      "observed": "Two real installed native launches passed editing, synchronization, explicit conflicts, exact retained records and normal exit codes 0/0.",
+      "result": "Passed"
+    },
+    {
+      "name": "Domain and boundaries",
+      "observed": "The source suite passed 90 tests with 94% line coverage. Fourteen real Windows profile controls and 105-row/53-filtered exact-export regressions passed.",
+      "result": "Passed"
+    },
+    {
+      "name": "Build and security",
+      "observed": "Current main CI, actual Windows native acceptance, Android release build and processed C# analysis of both core/API and MAUI source passed.",
+      "result": "Passed"
+    },
+    {
+      "name": "Portable distribution",
+      "observed": "Five independently downloaded assets matched provider hashes. Installed application and .NET 10.0.15 payload hashes matched; individual icon targets passed read-back.",
+      "result": "Passed"
+    }
+  ],
+  "visualReview": {
+    "approved": true,
+    "reviewer": "audit_space_drone",
+    "ooxmlSchema": "passed",
+    "pages": [
+      {
+        "page": 1,
+        "sha256": "053421474f43715bcd06f029571a2b1185634535d810328b1178b15dc334bae3"
+      },
+      {
+        "page": 2,
+        "sha256": "1f7fa438e7c4f5447f141871f23e8e7ce0a4099d2034379f3e19d049cf6a74b5"
+      },
+      {
+        "page": 3,
+        "sha256": "7a9036ed1c960eeea855601b072fc8430a407ae2da2b955d0a1c9db0c43539bd"
+      },
+      {
+        "page": 4,
+        "sha256": "fb9bed7f2697926b8b0cfe07568432239f575f09132824844231ec2db45dafc3"
+      }
+    ],
+    "scope": "Every final page content individually viewed; only exact identical pixels carry prior inspection. Screenshots are actual installed synthetic workflows.",
+    "checkedUtc": "2026-11-11T11:29:38.055140+00:00"
+  }
+}
