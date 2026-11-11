@@ -7,7 +7,9 @@ dotnet run --project src/FieldOps.Api --urls http://127.0.0.1:5080
 curl http://127.0.0.1:5080/healthz
 ```
 
-Keep the service on loopback. The reference server has no authentication or durable state.
+Keep the service on loopback. This standalone default has no authentication or durable state.
+The complete Windows application's explicitly owned mode uses a durable checkpoint and ephemeral
+loopback capability; see [native operations and backup](native-application.md).
 
 ## MAUI builds
 
@@ -15,8 +17,8 @@ Windows x64:
 
 ```powershell
 dotnet workload restore src/FieldOps.App/FieldOps.App.csproj
-dotnet build src/FieldOps.App/FieldOps.App.csproj -c Release `
-  -f net10.0-windows10.0.19041.0 -r win-x64 --no-self-contained
+pwsh -NoProfile -File scripts/build-native.ps1 -Output release/windows/bundle
+pwsh -NoProfile -File scripts/archive-native.ps1 -Bundle release/windows/bundle -Proof artifacts/native/windows
 ```
 
 Android:
@@ -42,7 +44,7 @@ The automated database test performs the same state transition without relying o
 
 ## Backup and restore drill
 
-Version one has only client-side durable state. For a consistent development backup:
+The standalone development API remains volatile. For a consistent client-only development backup:
 
 1. Stop the MAUI app so no connection is active.
 2. Copy `fieldops.db`, `fieldops.db-wal`, `fieldops.db-shm`, and the attachment directory together.
@@ -50,7 +52,10 @@ Version one has only client-side durable state. For a consistent development bac
 4. Start the app, run migrations, inspect local history, and synchronize.
 
 Never copy only the main database while WAL mode is active. This repository does not claim a
-production backup system for the intentionally volatile reference server.
+production backup system for the intentionally volatile standalone reference server. In native
+companion mode, back up the entire closed profile, including its authority pairing and complete
+companion directory. Partial server/client restoration is deliberately refused; details are in the
+[native application guide](native-application.md).
 
 ## Observability
 

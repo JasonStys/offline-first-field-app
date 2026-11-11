@@ -10,6 +10,9 @@
         <Color x:Key="Surface">#F5F7F8</Color>
         <Color x:Key="Accent">#0B6E69</Color>
         <Color x:Key="AccentText">#FFFFFF</Color>
+        <Style TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource Ink}" />
+        </Style>
         <Style TargetType="Button">
             <Setter Property="BackgroundColor" Value="{StaticResource Accent}" />
             <Setter Property="TextColor" Value="{StaticResource AccentText}" />
@@ -18,6 +21,19 @@
         </Style>
         <Style TargetType="Entry">
             <Setter Property="MinimumHeightRequest" Value="44" />
+            <Setter Property="TextColor" Value="{StaticResource Ink}" />
+            <Setter Property="PlaceholderColor" Value="#526671" />
+            <Setter Property="BackgroundColor" Value="#FFFFFF" />
+        </Style>
+        <Style TargetType="Editor">
+            <Setter Property="TextColor" Value="{StaticResource Ink}" />
+            <Setter Property="PlaceholderColor" Value="#526671" />
+            <Setter Property="BackgroundColor" Value="#FFFFFF" />
+        </Style>
+        <Style TargetType="Picker">
+            <Setter Property="TextColor" Value="{StaticResource Ink}" />
+            <Setter Property="TitleColor" Value="#526671" />
+            <Setter Property="BackgroundColor" Value="#FFFFFF" />
         </Style>
     </Application.Resources>
 </Application>

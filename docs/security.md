@@ -23,10 +23,26 @@ text, and process/network interruption.
 
 ## Deliberate non-controls
 
-The reference API has no identity, authorization, tenant separation, transport policy, or durable
-server database. It is for loopback/isolated development only and must not be publicly exposed.
+The standalone reference API has no identity, authorization, tenant separation or durable server
+database by default. It is for loopback/isolated development only and must not be publicly exposed.
 Local SQLite and attachments are not application-level encrypted; production would use platform
 data protection, secure key storage, and an explicit retention policy.
+
+## Native companion boundary
+
+The Windows app starts offline and explicitly owns a fresh literal-loopback service. Its volatile
+32-byte capability is required on requests; Host must match the actual bound port, and an Origin
+header, if present, must match that origin. The client refuses redirects/proxies. The listener has
+strict JSON, connection/body/header bounds and no external provider integration. The capability is
+not an authenticated user or tenant identity, and another process running as the same OS owner can
+read local memory/files.
+
+Native client/companion profiles reject linked ancestors/state, retain exclusive owner locks and
+preserve corrupt or unidentified state rather than resetting it. Atomic checkpoint commits restore
+in-memory state on persistence failure. A durable generation pairing plus cursor check refuses an
+unrelated/partial server restoration before synchronization. These checks are accidental-mixing and
+file-safety safeguards, not tamper-proof attestation against the same OS owner. See
+[native data, backup and bounds](native-application.md).
 
 ## Threats to revisit
 

@@ -1,5 +1,5 @@
 # File: codeql.yml
-# Purpose: Analyze platform-neutral C# source using an explicit release build.
+# Purpose: Preserve platform-neutral analysis and independently extract the actual Windows MAUI client.
 name: CodeQL
 
 on:
@@ -26,7 +26,7 @@ jobs:
       - name: Set up .NET 10
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: 10.0.401
+          dotnet-version: 10.0.404
       - name: Initialize CodeQL
         uses: github/codeql-action/init@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0; coordinated version
         with:
@@ -36,4 +36,32 @@ jobs:
       - name: Build analyzed source
         run: dotnet build FieldOps.CI.slnx -c Release --no-restore
       - name: Analyze
+        uses: github/codeql-action/analyze@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0; coordinated version
+
+  analyze-windows:
+    name: Analyze actual Windows MAUI client C#
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out source without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up current .NET10 SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 10.0.404
+      - name: Install Windows MAUI build workload
+        run: dotnet workload install maui-windows
+      - name: Initialize real Windows C# extraction
+        uses: github/codeql-action/init@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0; coordinated version
+        with:
+          languages: csharp
+          build-mode: manual
+          queries: security-extended
+      - name: Restore actual client/native reference graph
+        run: dotnet restore src/FieldOps.App/FieldOps.App.csproj --locked-mode -p:NativeWindowsOnly=true -r win-x64 -p:SelfContained=true -p:WindowsAppSDKSelfContained=true -p:FieldOpsNativeRuntimeVersion=10.0.15
+      - name: Build actual MAUI and WinUI source under CodeQL
+        run: dotnet build src/FieldOps.App/FieldOps.App.csproj -c Release -f net10.0-windows10.0.19041.0 -r win-x64 --self-contained --no-restore --no-incremental -p:NativeWindowsOnly=true -p:WindowsAppSDKSelfContained=true -p:FieldOpsNativeRuntimeVersion=10.0.15
+      - name: Analyze extracted native client and companion
         uses: github/codeql-action/analyze@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0; coordinated version

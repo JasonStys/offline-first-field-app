@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "repository": "offline-first-field-app",
+  "version": "1.1.0",
+  "observedAt": "2026-11-11T07:05:48.0243099Z",
+  "sourceBaseline": "82b08143d14cc2851ed1709010788284371c8a01",
+  "sourceStatus": "Development candidate explicitly marked dirty; exact clean-source/hosted validation is a subsequent gate",
+  "tests": {
+    "total": 76,
+    "core": 11,
+    "api": 21,
+    "skipped": 0,
+    "infrastructure": 44
+  },
+  "coverage": {
+    "scope": "Core, Infrastructure and API; excludes native/generated MAUI code",
+    "linePercent": 94.0,
+    "branchPercent": 74.43,
+    "lineFloorPercent": 80
+  },
+  "platformBuilds": {
+    "hostedBuildSdk": "10.0.404",
+    "shippedRuntime": "10.0.15",
+    "neutral": "passed, zero warnings/errors",
+    "localBuildSdk": "10.0.403",
+    "windowsSelfContained": "passed",
+    "android": "passed, zero warnings/errors"
+  },
+  "archiveGuards": {
+    "failed": 0,
+    "passed": 13
+  },
+  "actualNative": {
+    "realOwnedHttp": true,
+    "archiveSha256": "81b2eab8a40bae4da071014f57379afff9ff2069d09734442e483471fe98e7bb",
+    "launches": 2,
+    "actualControls": true,
+    "formerOwnedListenerAbsent": true,
+    "releasedProfileLocks": true,
+    "sameRetainedRecords": true,
+    "exitCodes": [
+      0,
+      0
+    ],
+    "pendingIoQuit": true
+  },
+  "limits": [
+    "Unsigned unpackaged Windows x64; no clean-machine/signing/mobile certification",
+    "One trusted OS-owner with plaintext SQLite/checkpoint; reference device labels are not authenticated actors",
+    "Standalone API retains volatile default; native checkpoint is bounded and single-process",
+    "Full source coverage excludes native GUI; hosted full-client CodeQL and native lanes are separate",
+    "Observed native candidate is development-source-labelled, not a published/installed acceptance claim"
+  ]
+}

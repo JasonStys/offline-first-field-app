@@ -1,115 +1,126 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage
-    x:Class="FieldOps.App.MainPage"
+<ContentPage x:Class="FieldOps.App.MainPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:domain="clr-namespace:FieldOps.Core;assembly=FieldOps.Core"
     xmlns:app="clr-namespace:FieldOps.App"
-    Title="Field inspections"
-    BackgroundColor="{StaticResource Surface}">
-    <Grid Padding="24" RowDefinitions="Auto,Auto,Auto,*" RowSpacing="16">
+    Title="Field inspections" BackgroundColor="{StaticResource Surface}">
+    <Grid Padding="24" RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="12">
         <VerticalStackLayout Spacing="4">
             <Label FontAttributes="Bold" FontSize="28" Text="FieldOps Offline" />
-            <Label Text="Capture synthetic inspections without a network connection." />
+            <Label Text="Jason Stys · v1.1.0 · durable inspections, outbox and explicit conflict review" />
+            <Label x:Name="ConnectionStatus" AutomationId="connection-status"
+                Text="Opening the local workspace; input is disabled until initialization completes." />
         </VerticalStackLayout>
-
-        <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto,Auto">
-            <Label Text="Inspection title" />
-            <Entry
-                Grid.Row="1"
-                AutomationId="inspection-title"
-                Placeholder="North loading bay"
-                SemanticProperties.Description="Required inspection title"
-                Text="{Binding Title}" />
-            <Label Grid.Column="1" Text="Notes" />
-            <Editor
-                Grid.Row="1"
-                Grid.Column="1"
-                AutomationId="inspection-notes"
-                AutoSize="TextChanges"
-                MaximumHeightRequest="120"
-                MinimumHeightRequest="44"
-                Placeholder="Describe the generated fixture"
-                SemanticProperties.Description="Optional inspection notes"
-                Text="{Binding Notes}" />
-            <HorizontalStackLayout Grid.Row="2" Grid.ColumnSpan="2" Margin="0,12,0,0" Spacing="12">
-                <Button
-                    AutomationId="save-offline"
-                    Clicked="OnSaveClicked"
-                    IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
-                    Text="Save offline" />
-                <Button
-                    AutomationId="sync-now"
-                    Clicked="OnSyncClicked"
-                    IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
-                    Text="Sync now" />
-            </HorizontalStackLayout>
-        </Grid>
-
-        <Border Grid.Row="2" Padding="12" Stroke="#B8C4CA" StrokeShape="RoundRectangle 8">
-            <Label
-                AutomationId="sync-status"
-                Text="{Binding StatusText}" />
-        </Border>
-
-        <CollectionView
-            Grid.Row="3"
-            AutomationId="inspection-history"
-            EmptyView="No inspections yet. Save one while offline."
-            ItemsSource="{Binding Inspections}">
-            <CollectionView.Header>
-                <VerticalStackLayout Margin="0,0,0,16" Spacing="12">
-                    <Label FontAttributes="Bold" FontSize="20" Text="Resolve synchronization conflicts" />
-                    <Label Text="Choose an unresolved inspection below. Review original, local and server values before saving. Review works offline; the next sync still checks server versions. Use synthetic data on an isolated development endpoint." />
-                    <Picker
-                        AutomationId="conflict-selector"
-                        Title="Unresolved conflicts (up to 100; empty when none)"
-                        ItemDisplayBinding="{Binding Local.Title}"
-                        ItemsSource="{Binding Conflicts}"
+        <HorizontalStackLayout Grid.Row="1" Spacing="10">
+            <Button x:Name="StartLocalButton" AutomationId="start-local-companion" Text="Start owned local companion" Clicked="OnStartLocalClicked" IsEnabled="{Binding CanOperate}" />
+            <Button x:Name="GoOfflineButton" AutomationId="go-offline" Text="Go offline" Clicked="OnGoOfflineClicked" IsEnabled="{Binding CanOperate}" />
+            <Button x:Name="SyncButton" AutomationId="sync-now" Text="Sync now" Clicked="OnSyncClicked" IsEnabled="{Binding CanOperate}" />
+            <Button AutomationId="help" Text="Help &amp; privacy" Clicked="OnHelpClicked" />
+        </HorizontalStackLayout>
+        <HorizontalStackLayout Grid.Row="2" Spacing="10">
+            <Button x:Name="RecordsButton" Text="Inspections &amp; data" AutomationId="show-records" Clicked="OnShowRecordsClicked" />
+            <Button x:Name="ReviewButton" Text="Conflict review" AutomationId="show-review" Clicked="OnShowReviewClicked" />
+        </HorizontalStackLayout>
+        <Grid Grid.Row="3" x:Name="MainContent" IsEnabled="{Binding CanOperate}">
+            <ScrollView x:Name="RecordsPane">
+                <VerticalStackLayout Spacing="12">
+                    <Label FontAttributes="Bold" Text="{Binding EditSummary}" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto,Auto,Auto">
+                        <Label Text="Inspection title" />
+                        <Label Grid.Column="1" Text="Notes" />
+                        <Entry Grid.Row="1" x:Name="TitleEntry" AutomationId="inspection-title" Text="{Binding Title}"
+                            Placeholder="North loading bay" MaxLength="120" SemanticProperties.Description="Required inspection title" />
+                        <Editor Grid.Row="1" Grid.Column="1" x:Name="NotesEditor" AutomationId="inspection-notes" Text="{Binding Notes}"
+                            AutoSize="TextChanges" MinimumHeightRequest="44" MaximumHeightRequest="90" MaxLength="4000"
+                            Placeholder="Inspection observations and follow-up" SemanticProperties.Description="Optional inspection notes" />
+                        <Entry Grid.Row="2" AutomationId="template-id" Text="{Binding TemplateId}"
+                            Placeholder="Template ID, e.g. equipment-check-v1" MaxLength="64" />
+                        <Picker Grid.Row="2" Grid.Column="1" AutomationId="inspection-status" Title="Inspection status"
+                            ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding InspectionStatus}" />
+                        <HorizontalStackLayout Grid.Row="3" Grid.ColumnSpan="2" Margin="0,10,0,0" Spacing="10">
+                            <Button x:Name="SaveButton" AutomationId="save-offline" Clicked="OnSaveClicked" Text="Save offline"
+                                IsEnabled="{Binding CanOperate}" />
+                            <Button Text="New inspection" AutomationId="new-inspection" Clicked="OnNewClicked"
+                                IsEnabled="{Binding CanOperate}" />
+                            <Button x:Name="PrepareConflictButton" Text="Prepare two-technician conflict" AutomationId="prepare-conflict"
+                                Clicked="OnPrepareConflictClicked" IsEnabled="{Binding CanOperate}" />
+                        </HorizontalStackLayout>
+                    </Grid>
+                    <HorizontalStackLayout Spacing="10">
+                        <Entry x:Name="SearchEntry" Text="{Binding SearchText}" AutomationId="search-inspections"
+                            Placeholder="Literal title or notes text (maximum 100 rows)" WidthRequest="420" MaxLength="120" />
+                        <Button x:Name="SearchButton" Text="Search local records" AutomationId="search" Clicked="OnSearchClicked"
+                            IsEnabled="{Binding CanOperate}" />
+                        <Button x:Name="ExportButton" Text="Export rows to folder" AutomationId="export" Clicked="OnExportClicked"
+                            IsEnabled="{Binding CanOperate}" />
+                    </HorizontalStackLayout>
+                    <Label FontSize="20" FontAttributes="Bold" Text="Local inspections · select a row to edit its accepted version" />
+                    <Label Text="No matching local records. Save one offline or clear the search." IsVisible="{Binding HasInspections, Converter={StaticResource InvertedBoolConverter}}" />
+                    <VerticalStackLayout x:Name="HistoryView" BindableLayout.ItemsSource="{Binding Inspections}" Spacing="8">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="domain:InspectionSnapshot">
+                                <Border Padding="12" BackgroundColor="#FFFFFF" Stroke="#B8C4CA" StrokeShape="RoundRectangle 8">
+                                    <Grid ColumnDefinitions="*,Auto,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="5">
+                                        <Label FontAttributes="Bold" Text="{Binding Title}" />
+                                        <Label Grid.Column="1" Text="{Binding Status}" />
+                                        <Label Grid.Column="2" Text="{Binding Version, StringFormat='Version {0}'}" />
+                                        <Label Grid.Row="1" Grid.ColumnSpan="3" Text="{Binding Notes}" />
+                                        <Button Grid.Row="2" Grid.ColumnSpan="3" HorizontalOptions="Start" Text="Edit this inspection"
+                                            Clicked="OnEditInspectionClicked" SemanticProperties.Description="{Binding Title}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </ScrollView>
+            <ScrollView x:Name="ReviewPane" IsVisible="False">
+                <VerticalStackLayout Spacing="12">
+                    <Label FontAttributes="Bold" FontSize="22" Text="Review original, local and server evidence" />
+                    <Label Text="Select an unresolved conflict. Disjoint changes are preselected against the recorded base; changes on both sides require your deliberate choice. Save the chosen values offline, then Sync. No field is resolved automatically." />
+                    <Picker AutomationId="conflict-selector" Title="Unresolved conflicts (up to100; empty when none)"
+                        ItemDisplayBinding="{Binding Local.Title}" ItemsSource="{Binding Conflicts}"
                         SelectedItem="{Binding SelectedConflict, Mode=TwoWay}"
-                        IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" />
+                        IsEnabled="{Binding CanOperate}" />
                     <VerticalStackLayout IsVisible="{Binding HasConflictReview}" Spacing="12">
-                        <Label Text="Matching and disjoint changes are preselected using the recorded base. Changed-on-both-sides fields require a choice. You may override any selection. Empty notes are a valid value." />
                         <VerticalStackLayout BindableLayout.ItemsSource="{Binding ConflictFields}" Spacing="12">
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="app:ConflictFieldChoice">
-                                    <Border Padding="12" Stroke="#B8C4CA" StrokeShape="RoundRectangle 8">
+                                    <Border Padding="14" BackgroundColor="#FFFFFF" Stroke="#B8C4CA" StrokeShape="RoundRectangle 8">
                                         <VerticalStackLayout Spacing="6">
-                                            <Label FontAttributes="Bold" Text="{Binding Name}" />
-                                            <Label Text="Original base" FontAttributes="Bold" />
-                                            <Label Text="{Binding BaselineValue}" />
-                                            <Label Text="Your local value" FontAttributes="Bold" />
-                                            <Label Text="{Binding LocalValue}" />
-                                            <Label Text="Server value at conflict" FontAttributes="Bold" />
-                                            <Label Text="{Binding RemoteValue}" />
+                                            <Label FontAttributes="Bold" FontSize="18" Text="{Binding Name}" />
+                                            <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto" ColumnSpacing="16">
+                                                <Label FontAttributes="Bold" Text="Original base" />
+                                                <Label Grid.Column="1" FontAttributes="Bold" Text="Your local value" />
+                                                <Label Grid.Column="2" FontAttributes="Bold" Text="Server at conflict" />
+                                                <Label Grid.Row="1" Text="{Binding BaselineValue}" />
+                                                <Label Grid.Row="1" Grid.Column="1" Text="{Binding LocalValue}" />
+                                                <Label Grid.Row="1" Grid.Column="2" Text="{Binding RemoteValue}" />
+                                            </Grid>
                                             <Label Text="Both sides differ: choose a value." IsVisible="{Binding RequiresChoice}" />
-                                            <Picker Title="Choose value to keep" ItemsSource="{Binding Options}" SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" />
+                                            <Picker Title="Choose value to keep" ItemsSource="{Binding Options}"
+                                                SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" />
                                         </VerticalStackLayout>
                                     </Border>
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
                         </VerticalStackLayout>
-                        <HorizontalStackLayout Spacing="12">
-                            <Button AutomationId="save-resolution" Text="Save resolution offline" Clicked="OnResolveClicked"
-                                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" />
+                        <HorizontalStackLayout Spacing="10">
+                            <Button x:Name="ResolveButton" AutomationId="save-resolution" Text="Save resolution offline" Clicked="OnResolveClicked"
+                                IsEnabled="{Binding CanOperate}" />
                             <Button AutomationId="cancel-resolution" Text="Cancel review" Clicked="OnCancelReviewClicked"
-                                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" />
+                                IsEnabled="{Binding CanOperate}" />
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
-                    <Label FontAttributes="Bold" FontSize="20" Text="Local inspections" />
                 </VerticalStackLayout>
-            </CollectionView.Header>
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="domain:InspectionSnapshot">
-                    <Border Margin="0,0,0,8" Padding="12" Stroke="#D5DEE2" StrokeShape="RoundRectangle 8">
-                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
-                            <Label FontAttributes="Bold" Text="{Binding Title}" />
-                            <Label Grid.Column="1" Text="{Binding Status}" />
-                            <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Notes}" />
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+            </ScrollView>
+        </Grid>
+        <Grid Grid.Row="4" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+            <Border Padding="12" Stroke="#B8C4CA" StrokeShape="RoundRectangle 8">
+                <Label AutomationId="sync-status" Text="{Binding StatusText}" />
+            </Border>
+            <Button Grid.Column="1" x:Name="QuitButton" Text="Quit application" AutomationId="quit" Clicked="OnQuitClicked" />
+        </Grid>
     </Grid>
 </ContentPage>

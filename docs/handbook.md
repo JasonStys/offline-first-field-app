@@ -2,11 +2,14 @@
 
 By Jason Stys.
 
-Resolve base/local/server conflicts using explicit choices for divergent fields, stale-version checks and atomic replacement of queued writes.
+FieldOps Offline 1.1.0 brings the actual SQLite/outbox, real owned local sync companion and explicit
+base/local/server review into a self-contained Windows application. Save offline, edit accepted rows,
+search notes, export visible data and retain exact state across restarts without silently replacing
+an old sync authority. The prepared conflict is data inside the complete application.
 
-Resolve base/local/server conflicts using explicit choices for divergent fields, stale-version checks and atomic replacement of queued writes.
-
-Makes offline editing recoverable without silently overwriting another person's changes or fabricating a missing base.
+Start with [native usage and screenshots](native-application.md). Its
+[current local validation report](reports/native-application-2026-11-11.md) records real control,
+HTTP, persistence and completion-based Quit tests; it does not replace the dated observations below.
 
 ## Read the documentation
 
@@ -23,6 +26,7 @@ The editable Markdown remains the maintenance source. The Word files are readabl
 ### Usage and operations
 
 - [operations](operations.md)
+- [native application](native-application.md)
 
 ### Design and contracts
 
@@ -50,7 +54,10 @@ The reviewed source is [`c5471bc43c1a6296c785aeab40310ae227b2d295`](https://gith
 - Isolated synthetic development API with no authentication or tenant separation; not a hosted multi-user field service.
 - Local SQLite is unencrypted. Older drafts may lack a base revision, which the resolver does not fabricate.
 - Conflict review shows at most 100 entries from a 200-item bounded store API.
-- MAUI compilation and portable view-model journeys are not real-device GUI validation; no updated native release accompanies this upgrade.
+- The Windows native journey uses actual MAUI controls and a synthetic owned profile; no physical
+  mobile, assistive-technology or clean-machine certification is claimed.
+- The application package is unsigned Windows x64. Public release and installed-PC acceptance are
+  separate gates; the existing Word edition above remains explicitly historical.
 
 ## Maintaining these editions
 

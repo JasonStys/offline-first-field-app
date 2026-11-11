@@ -364,6 +364,19 @@ public sealed partial class LocalFieldStore(string databasePath) : ILocalFieldSt
             ?? throw new InvalidOperationException("Sync checkpoint is missing."));
     }
 
+    /// <summary>Detect recorded remote authority before any new native companion can be paired.</summary>
+    public async Task<bool> HasRemoteStateAsync()
+    {
+        await using var connection = await OpenAsync(CancellationToken.None).ConfigureAwait(false);
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT EXISTS(SELECT 1 FROM inspections WHERE version > 0)
+                OR EXISTS(SELECT 1 FROM conflicts)
+                OR (SELECT cursor FROM sync_checkpoint WHERE singleton_id = 1) > 0;
+            """;
+        return Convert.ToInt64(await command.ExecuteScalarAsync().ConfigureAwait(false), CultureInfo.InvariantCulture) != 0;
+    }
+
     /// <inheritdoc />
     public async Task<int> RecoverInterruptedCommandsAsync(
         CancellationToken cancellationToken = default)
@@ -381,10 +394,21 @@ public sealed partial class LocalFieldStore(string databasePath) : ILocalFieldSt
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<InspectionSnapshot>> SearchAsync(
+    public Task<IReadOnlyList<InspectionSnapshot>> SearchAsync(
         string? query,
         int maximumCount,
+        CancellationToken cancellationToken = default) => SearchRecordsAsync(query, maximumCount, false, cancellationToken);
+
+    /// <summary>Literal substring title/notes search for native users; original prefix API is preserved.</summary>
+    public Task<IReadOnlyList<InspectionSnapshot>> SearchContentAsync(string? query, int maximumCount,
         CancellationToken cancellationToken = default)
+    {
+        if (query?.Length > 120) throw new ArgumentOutOfRangeException(nameof(query));
+        return SearchRecordsAsync(query, maximumCount, true, cancellationToken);
+    }
+
+    private async Task<IReadOnlyList<InspectionSnapshot>> SearchRecordsAsync(string? query,
+        int maximumCount, bool content, CancellationToken cancellationToken)
     {
         if (maximumCount is < 1 or > MaximumSearchResults)
         {
@@ -401,7 +425,13 @@ public sealed partial class LocalFieldStore(string databasePath) : ILocalFieldSt
                 ORDER BY updated_at_utc DESC, id
                 LIMIT $limit;
                 """
-            : """
+            : content ? """
+                SELECT id, template_id, title, notes, status, version, updated_at_utc
+                FROM inspections
+                WHERE instr(lower(title), lower($prefix)) > 0 OR instr(lower(notes), lower($prefix)) > 0
+                ORDER BY updated_at_utc DESC, id
+                LIMIT $limit;
+                """ : """
                 SELECT id, template_id, title, notes, status, version, updated_at_utc
                 FROM inspections
                 WHERE title GLOB $prefix
@@ -410,7 +440,7 @@ public sealed partial class LocalFieldStore(string databasePath) : ILocalFieldSt
                 """;
         if (normalized.Length > 0)
         {
-            command.Parameters.AddWithValue("$prefix", EscapeGlob(normalized) + "*");
+            command.Parameters.AddWithValue("$prefix", content ? normalized : EscapeGlob(normalized) + "*");
         }
 
         command.Parameters.AddWithValue("$limit", maximumCount);

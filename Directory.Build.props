@@ -8,6 +8,8 @@
     <LangVersion>14</LangVersion>
     <Nullable>enable</Nullable>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <!-- Native Windows RID graphs do not replace the existing platform-neutral/Android locks. -->
+    <NuGetLockFilePath Condition="'$(NativeWindowsOnly)' == 'true'">$(MSBuildProjectDirectory)/packages.native-windows.lock.json</NuGetLockFilePath>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 </Project>

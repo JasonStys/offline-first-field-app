@@ -15,10 +15,14 @@ try {
   dotnet run --project tools\FieldOps.RepositoryChecks -c Release --no-build -- index-check
   dotnet run --project tools\FieldOps.RepositoryChecks -c Release --no-build -- validate
   dotnet list FieldOps.CI.slnx package --vulnerable --include-transitive
+  # The original multi-platform restore is OS/workload-dependent; native RID graphs use separate locks.
   dotnet restore src\FieldOps.App\FieldOps.App.csproj
   dotnet build src\FieldOps.App\FieldOps.App.csproj -c Release -f net10.0-android --no-restore
+  dotnet restore src\FieldOps.App\FieldOps.App.csproj --locked-mode -p:NativeWindowsOnly=true `
+    -r win-x64 -p:SelfContained=true -p:WindowsAppSDKSelfContained=true -p:FieldOpsNativeRuntimeVersion=10.0.15
   dotnet build src\FieldOps.App\FieldOps.App.csproj -c Release `
-    -f net10.0-windows10.0.19041.0 -r win-x64 --no-self-contained --no-restore
+    -f net10.0-windows10.0.19041.0 -r win-x64 --self-contained --no-restore `
+    -p:NativeWindowsOnly=true -p:WindowsAppSDKSelfContained=true -p:FieldOpsNativeRuntimeVersion=10.0.15
 } finally {
   Pop-Location
 }
