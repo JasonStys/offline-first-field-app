@@ -8,7 +8,7 @@ data were used; no installed user database, credentials, Docker service or globa
 | --- | --- | --- |
 | Platform-neutral Release build | Passed, zero warnings/errors | Existing local SDK 10.0.403 |
 | Domain tests | 11 passed, zero skipped | Actual original contracts/merge/coordinator |
-| SQLite/dashboard tests | 44 passed, zero skipped | Actual persistence, content search, exact visible export and authority safeguards |
+| SQLite/dashboard/native-profile tests | 58 passed, zero skipped on Windows | Actual persistence, exact visible export, authority and fixed mutable-file admission |
 | API tests | 21 passed, zero skipped | Includes actual owned loopback and durable checkpoint restart |
 | Merged Coverlet line coverage | 94.00%, original 80% floor preserved | Core + Infrastructure + API; excludes native/generated MAUI code |
 | Merged branch coverage | 74.43% | Observation, not a new pass threshold |
@@ -20,8 +20,10 @@ data were used; no installed user database, credentials, Docker service or globa
 | Self-contained .NET runtime | Actual 10.0.15 | Signed runtime/apphost NuGet archives and shipped DLL hashes checked |
 | Actual native two-launch workflow | Passed, both exit 0 | Owned synthetic profile, actual MAUI controls/SQLite/HTTP, no runtime on PATH |
 
-The full source test count is **76**, across three test assemblies. Those tests and their merged
+The full local Windows source test count is **90**, across three test assemblies. Those tests and their merged
 coverage denominator are distinct from the actual native journey and the 13 PowerShell ZIP guards.
+Five cases use actual NTFS hardlinks and are explicitly skipped on non-Windows hosts; the remaining
+profile tests use real Windows junctions or POSIX symlinks as appropriate, rather than simulated flags.
 Hosted Windows native execution and both CodeQL configurations are recorded separately when their
 actual runs complete; successful local Windows use does not certify another platform. The original
 multi-platform MAUI restore remains platform/workload-resolved; the neutral solution and new explicit
@@ -58,6 +60,23 @@ the complete application rather than creating a separate demonstration executabl
 - Export previously queried more rows than the visible list and could apply an unsubmitted search.
   It now exports exactly the displayed snapshot and applied filter. An independent 105-record SQLite
   test verifies 100 visible/exported rows, 53 filtered rows and preservation of all 105 source records.
+- An attribute-only check cannot identify NTFS hardlinks. Before any SQLite/ownership write, all five
+  fixed mutable files now require single-link ordinary Windows metadata obtained through a no-follow,
+  metadata-only OS handle. Real hardlink database/WAL/SHM/journal/lock fixtures retain their original
+  database and external target bytes. Genuine junction ancestor/WAL tests, install-base refusal and
+  ordinary existing sidecar preservation also pass. This is static owner-local admission, not
+  race-proof namespace security against another process running as the same OS owner.
+
+## First hosted native build and corrective evidence
+
+The initial source's original CI and both actual CodeQL jobs completed successfully. Its native job
+failed during publication, after MAUI compilation, with `NETSDK1094`: ReadyToRun optimization needed
+runtime/tool packs restored with the same Release/ReadyToRun settings. The build now explicitly uses
+`Configuration=Release` and `PublishReadyToRun=true` in the shared restore/publish argument vector.
+Optimization and all test deadlines remain enabled. A fresh local complete archive passed the actual
+two-launch journey after this correction; SDK 10.0.404 hosted acceptance remains a separate gate.
+The [failed job](https://github.com/JasonStys/offline-first-field-app/actions/runs/42977738882/job/130380667709)
+is retained as evidence rather than relabelled as an application pass.
 
 Failed development probes are retained privately and are not reported as passing. A color-format
 expectation and a network SYN liveness probe were test-oracle issues: they were corrected to the

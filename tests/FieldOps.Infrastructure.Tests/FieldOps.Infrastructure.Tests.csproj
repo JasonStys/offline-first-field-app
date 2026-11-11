@@ -18,5 +18,6 @@
     <Compile Include="..\..\src\FieldOps.App\DashboardViewModel.cs" Link="App\DashboardViewModel.cs" />
     <Compile Include="..\..\src\FieldOps.App\ConflictFieldChoice.cs" Link="App\ConflictFieldChoice.cs" />
     <Compile Include="..\..\src\FieldOps.App\NativeLaunch.cs" Link="App\NativeLaunch.cs" />
+    <Compile Include="..\..\src\FieldOps.App\NativeRuntime.cs" Link="App\NativeRuntime.cs" />
   </ItemGroup>
 </Project>

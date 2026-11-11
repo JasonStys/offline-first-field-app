@@ -5,6 +5,9 @@
 
 using FieldOps.Core;
 using FieldOps.Infrastructure;
+using Microsoft.Win32.SafeHandles;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 #if WINDOWS
 using FieldOps.Api;
 #endif
@@ -34,19 +37,81 @@ public sealed class NativeRuntime : IRemoteSyncGateway, IAsyncDisposable
     public void AcquireOwnership()
     {
         if (ownership is not null) return;
+        var install = Path.TrimEndingDirectorySeparator(Path.GetFullPath(AppContext.BaseDirectory));
+        if (string.Equals(ProfileDirectory, install, StringComparison.OrdinalIgnoreCase)
+            || ProfileDirectory.StartsWith(install + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException("Keep durable workspace data outside the installed application.");
         for (var part = new DirectoryInfo(ProfileDirectory); part is not null; part = part.Parent)
-            if (part.Exists && (part.Attributes & FileAttributes.ReparsePoint) != 0)
-                throw new InvalidDataException("Linked native profile directories are unsupported.");
+        {
+            var attributes = AttributesIfPresent(part.FullName);
+            if (attributes is not null && ((attributes & FileAttributes.ReparsePoint) != 0
+                || (attributes & FileAttributes.Directory) == 0))
+                throw new InvalidDataException("Native profile ancestors must be real directories.");
+        }
         Directory.CreateDirectory(ProfileDirectory);
-        foreach (var name in new[] { "native-app.lock", "fieldops.db" })
+        foreach (var name in new[] { "native-app.lock", "fieldops.db", "fieldops.db-wal", "fieldops.db-shm", "fieldops.db-journal" })
         {
             var path = Path.Combine(ProfileDirectory, name);
-            if (File.Exists(path) && (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0)
-                throw new InvalidDataException("Linked native state files are unsupported.");
+            var attributes = AttributesIfPresent(path);
+            if (attributes is not null && (attributes & (FileAttributes.ReparsePoint | FileAttributes.Directory)) != 0)
+                throw new InvalidDataException("Native SQLite/ownership state must be ordinary files.");
+            if (attributes is not null && OperatingSystem.IsWindows()) RequireSingleLinkWindows(path);
         }
         ownership = new FileStream(Path.Combine(ProfileDirectory, "native-app.lock"), FileMode.OpenOrCreate,
             FileAccess.ReadWrite, FileShare.None);
     }
+
+    /// <summary>Inspect aliases even when their targets are missing; absence alone is admissible.</summary>
+    private static FileAttributes? AttributesIfPresent(string path)
+    {
+        try { return File.GetAttributes(path); }
+        catch (FileNotFoundException) { return null; }
+        catch (DirectoryNotFoundException) { return null; }
+    }
+
+    /// <summary>Read Windows metadata without following final reparse points or opening file data for writes.</summary>
+    [SupportedOSPlatform("windows")]
+    private static void RequireSingleLinkWindows(string path)
+    {
+        const uint readAttributes = 0x80;
+        const uint shareReadWriteDelete = 0x7;
+        const uint openExisting = 3;
+        const uint openReparsePoint = 0x00200000;
+        using var handle = OpenMetadata(path, readAttributes, shareReadWriteDelete, IntPtr.Zero,
+            openExisting, openReparsePoint, IntPtr.Zero);
+        if (handle.IsInvalid || !ReadFileInformation(handle, out var information)
+            || information.NumberOfLinks != 1
+            || (information.Attributes & (uint)(FileAttributes.ReparsePoint | FileAttributes.Directory)) != 0)
+            throw new InvalidDataException("Native mutable state must be a single-link ordinary file.");
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct FileInformation
+    {
+        public uint Attributes;
+        public System.Runtime.InteropServices.ComTypes.FILETIME CreationTime;
+        public System.Runtime.InteropServices.ComTypes.FILETIME AccessTime;
+        public System.Runtime.InteropServices.ComTypes.FILETIME WriteTime;
+        public uint VolumeSerialNumber;
+        public uint FileSizeHigh;
+        public uint FileSizeLow;
+        public uint NumberOfLinks;
+        public uint FileIndexHigh;
+        public uint FileIndexLow;
+    }
+
+    // Fixed OS exports only. SafeFileHandle owns closure even on refusal; no DLL path is user-controlled.
+    [DllImport("kernel32.dll", EntryPoint = "CreateFileW", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    [SupportedOSPlatform("windows")]
+    private static extern SafeFileHandle OpenMetadata(string path, uint access, uint sharing,
+        IntPtr securityAttributes, uint creation, uint flags, IntPtr template);
+
+    [DllImport("kernel32.dll", EntryPoint = "GetFileInformationByHandle", ExactSpelling = true, SetLastError = true)]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    [SupportedOSPlatform("windows")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool ReadFileInformation(SafeFileHandle handle, out FileInformation information);
 
     /// <summary>Start only a newly owned real reference API, retaining its checkpoint across restarts.</summary>
     public async Task StartLocalAsync()

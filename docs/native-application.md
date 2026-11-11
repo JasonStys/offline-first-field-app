@@ -73,6 +73,12 @@ it adds no public service, ads, analytics or external API. Another process runni
 owner can read local plaintext data; application encryption, tenant isolation and production
 identity provisioning remain unimplemented. Use synthetic records.
 
+Before initialization, the Windows app refuses a profile beneath its actual program directory,
+linked ancestors, and aliases/directories at the database, WAL, SHM, journal and owner-lock paths.
+Metadata-only, no-follow Windows handles require a link count of one before any SQLite/ownership write.
+Existing ordinary recovery sidecars are preserved. These checks reject static path mistakes;
+they are not an atomic namespace guarantee against a concurrent process under the same OS account.
+
 Checkpoint state is capped at 8 MiB and 10,000 entries per collection; the existing SQLite outbox
 cap, sync page limits and attachment limits remain. A full checkpoint refuses another write and
 restores in-memory state rather than pretending it persisted. Source attachment handling is not

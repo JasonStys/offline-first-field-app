@@ -33,7 +33,8 @@ if ($metadata.Project.PropertyGroup.Version -ne '1.1.0' -or $metadata.Project.Pr
 Push-Location $repository
 try {
     $properties = @('-p:NativeWindowsOnly=true','-r','win-x64','-p:SelfContained=true',
-        '-p:WindowsAppSDKSelfContained=true','-p:FieldOpsNativeRuntimeVersion=10.0.15','-p:PublishTrimmed=false')
+        '-p:WindowsAppSDKSelfContained=true','-p:FieldOpsNativeRuntimeVersion=10.0.15','-p:PublishTrimmed=false',
+        '-p:Configuration=Release','-p:PublishReadyToRun=true')
     Invoke-Checked -Arguments (@('restore',$project,'--locked-mode') + $properties)
     Invoke-Checked -Arguments (@('publish',$project,'-c','Release','-f','net10.0-windows10.0.19041.0','--no-restore','-o',$destination) + $properties)
     # Preserve the real API DLL; omit its separate CLI apphost/config from the single native application.
