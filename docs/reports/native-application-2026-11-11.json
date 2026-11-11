@@ -69,5 +69,24 @@
     "conclusion": "failure",
     "job": 130380667709,
     "error": "NETSDK1094"
+  },
+  "packagingEvidenceCorrection": {
+    "hostedFailure": {
+      "job": 130397775631,
+      "cause": "SDK10.0.404 contains the pinned apphost; restore need not download that NuGet archive",
+      "stage": "Post-publish apphost signature/notice evidence",
+      "run": 42983071763,
+      "originalCi": "success",
+      "codeQl": "success"
+    },
+    "freshHostedAcceptance": "pending",
+    "actualZipRegressionCases": 8,
+    "localCandidateSourceDirty": true,
+    "localRelocatedNativeLaunches": 2,
+    "fix": "Explicit exact host package evidence download, archive signature verification and bounded fixed metadata/notice reading; no project-reference or SDK/global-cache change",
+    "localBothExitCodes": [
+      0,
+      0
+    ]
   }
 }

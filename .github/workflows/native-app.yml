@@ -38,6 +38,8 @@ jobs:
         run: dotnet workload install maui-windows
       - name: Verify actual archive refusal fixtures
         run: pwsh -NoProfile -File tests/native-archive.tests.ps1
+      - name: Verify bounded fixed runtime evidence fixtures
+        run: pwsh -NoProfile -File tests/native-host-evidence.tests.ps1
       - name: Build current runtime and verify signed NuGet runtime bytes
         run: pwsh -NoProfile -File scripts/build-native.ps1 -Output release/windows/bundle
       - name: Relocate complete ZIP and use actual native controls twice

@@ -78,6 +78,21 @@ two-launch journey after this correction; SDK 10.0.404 hosted acceptance remains
 The [failed job](https://github.com/JasonStys/offline-first-field-app/actions/runs/42977738882/job/130380667709)
 is retained as evidence rather than relabelled as an application pass.
 
+The next hosted run completed both MAUI compilation and ReadyToRun publication, then exposed a
+separate evidence-acquisition assumption: SDK 10.0.404 already contains apphost 10.0.15, so restore
+does not necessarily download its archive into `.packages`. The later signature/notice check
+therefore failed on a missing cache directory. The [actual failing job](https://github.com/JasonStys/offline-first-field-app/actions/runs/42983071763/job/130397775631)
+is retained. Original CI and both CodeQL lanes passed at that source.
+
+The builder now uses the official [`dotnet package download`](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-package-download)
+command to acquire exactly `Microsoft.NETCore.App.Host.win-x64@10.0.15` into a fresh ignored evidence
+directory. It verifies that archive's signature and reads only the three fixed bounded metadata
+and notice entries, without adding project references or altering SDK/global caches. Eight actual
+ZIP regressions cover accepted evidence, missing/duplicate entries, wrong version/product, DTD,
+expanded-byte and member limits. A corrected local full ZIP relocation and both actual native
+journeys passed; fresh hosted acceptance remains required. Application/runtime source and test
+deadlines are unchanged by this packaging-only correction.
+
 Failed development probes are retained privately and are not reported as passing. A color-format
 expectation and a network SYN liveness probe were test-oracle issues: they were corrected to the
 actual color representation and OS listener table. No pass threshold or process deadline was raised.

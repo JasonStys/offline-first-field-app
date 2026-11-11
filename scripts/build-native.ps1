@@ -6,6 +6,7 @@
 param([string]$Output = 'release/windows', [switch]$AllowDirty)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'host-package-evidence.ps1')
 $repository = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $destination = [IO.Path]::GetFullPath((Join-Path $repository $Output))
 $releaseRoot = [IO.Path]::GetFullPath((Join-Path $repository 'release')) + [IO.Path]::DirectorySeparatorChar
@@ -73,12 +74,25 @@ try {
         if ((Get-FileHash -LiteralPath $shipped -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) { throw 'Bundled runtime differs from the current pinned NuGet runtime bytes.' }
         $runtimeBytes[$entry[2]] = $expected
     }
-    foreach ($packageName in @('microsoft.netcore.app.runtime.win-x64','microsoft.aspnetcore.app.runtime.win-x64','microsoft.netcore.app.host.win-x64')) {
+    foreach ($packageName in @('microsoft.netcore.app.runtime.win-x64','microsoft.aspnetcore.app.runtime.win-x64')) {
         $directory = Join-Path $repository ('.packages/' + $packageName + '/10.0.15')
         Invoke-Checked -Arguments @('nuget','verify',(Join-Path $directory "$packageName.10.0.15.nupkg"),'--all','--verbosity','quiet')
         foreach ($notice in Get-ChildItem -LiteralPath $directory -File | Where-Object { $_.Name -match '^(LICENSE|THIRD-PARTY)' }) {
             Add-Notice "$packageName 10.0.15 / $($notice.Name)" $notice.FullName
         }
+    }
+    # SDK10.0.404 already contains this exact apphost, so restore may not cache its NuGet archive.
+    # Download only its fixed evidence package; this does not add assets or alter the locked graph.
+    $hostEvidence = Join-Path $repository ('.runtime/host-evidence-' + [Guid]::NewGuid().ToString('N'))
+    [void][IO.Directory]::CreateDirectory($hostEvidence)
+    Invoke-Checked -Arguments @('package','download','Microsoft.NETCore.App.Host.win-x64@10.0.15',
+        '--configfile',(Join-Path $repository 'NuGet.Config'),'--output',$hostEvidence,'--verbosity','quiet')
+    $hostArchive = Join-Path $hostEvidence 'microsoft.netcore.app.host.win-x64/10.0.15/microsoft.netcore.app.host.win-x64.10.0.15.nupkg'
+    Invoke-Checked -Arguments @('nuget','verify',$hostArchive,'--all','--verbosity','quiet')
+    $hostNotices = Read-HostPackageNotices -Archive $hostArchive
+    foreach ($name in $hostNotices.Keys) {
+        [void]$notices.AppendLine("`n=== Microsoft.NETCore.App.Host.win-x64 10.0.15 / $name ===")
+        [void]$notices.AppendLine($hostNotices[$name])
     }
     [IO.File]::WriteAllText((Join-Path $destination 'THIRD-PARTY-NOTICES.txt'),$notices.ToString(),[Text.UTF8Encoding]::new($false))
     Copy-Item -LiteralPath (Join-Path $repository 'LICENSE') -Destination (Join-Path $destination 'LICENSE.txt')

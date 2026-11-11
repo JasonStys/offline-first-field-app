@@ -5,6 +5,8 @@
 | `Directory.Build.props` | Strict language, analyzer, deterministic-build, and warning policy |
 | `Directory.Packages.props` | Exact centrally managed NuGet versions |
 | `Directory.Build.targets` | Explicit native runtime/apphost pack pin without altering Windows SDK identity |
+| `scripts/host-package-evidence.ps1` | Bounded fixed metadata/notice reader for the signature-verified exact apphost archive |
+| `tests/native-host-evidence.tests.ps1` | Eight actual ZIP metadata/notice regression cases; separate from archive signature verification |
 | `FieldOps.CI.slnx` | Platform-neutral build/test solution for Linux and Windows |
 | `FieldOps.slnx` | Complete solution including the MAUI client |
 | `src/FieldOps.Core/*.cs` | Validated domain types, merge policy, sync DTOs, and abstractions |
