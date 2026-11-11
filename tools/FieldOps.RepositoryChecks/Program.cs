@@ -213,6 +213,8 @@ static bool IsGenerated(string path) =>
     path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
     || path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
     || path.Contains($"{Path.DirectorySeparatorChar}.packages{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+    || path.Contains($"{Path.DirectorySeparatorChar}.runtime{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+    || path.Contains($"{Path.DirectorySeparatorChar}release{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
     || path.Contains($"{Path.DirectorySeparatorChar}artifacts{Path.DirectorySeparatorChar}", StringComparison.Ordinal);
 
 static string Normalize(string path) => path.Replace('\\', '/');

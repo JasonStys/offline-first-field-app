@@ -8,18 +8,29 @@ using FieldOps.Core;
 namespace FieldOps.Api;
 
 /// <summary>Thread-safe in-memory reference implementation of the server synchronization rules.</summary>
-public sealed class SyncServerStore(TimeProvider timeProvider)
+public sealed class SyncServerStore
 {
+    private readonly TimeProvider timeProvider;
+    private readonly NativeCheckpoint? checkpoint;
     private readonly Lock gate = new();
     private readonly Dictionary<Guid, InspectionSnapshot> records = [];
     private readonly Dictionary<Guid, PushItemResult> results = [];
     private readonly List<(long Cursor, InspectionSnapshot Record)> changes = [];
     private long nextCursor;
 
+    /// <summary>Keep the original in-memory default; native composition can explicitly retain state.</summary>
+    public SyncServerStore(TimeProvider timeProvider, NativeCheckpoint? checkpoint = null)
+    {
+        this.timeProvider = timeProvider;
+        this.checkpoint = checkpoint;
+        var retained = checkpoint?.Load();
+        if (retained is not null) Restore(retained);
+    }
+
     /// <summary>
     /// Apply a bounded batch in order, replaying cached results for duplicate mutation identifiers.
     /// </summary>
-    /// <remarks>Runs in O(m) expected time for m mutations and holds a single short critical section.</remarks>
+    /// <remarks>The volatile default is O(m) expected; native mode also copies/validates/serializes its bounded full checkpoint under the gate.</remarks>
     public IReadOnlyList<PushItemResult> Push(PushRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -30,7 +41,18 @@ public sealed class SyncServerStore(TimeProvider timeProvider)
 
         lock (gate)
         {
-            return request.Mutations.Select(ApplyMutation).ToArray();
+            var before = checkpoint is null ? null : Capture();
+            try
+            {
+                var result = request.Mutations.Select(ApplyMutation).ToArray();
+                checkpoint?.Save(Capture());
+                return result;
+            }
+            catch
+            {
+                if (before is not null) Restore(before);
+                throw;
+            }
         }
     }
 
@@ -60,6 +82,26 @@ public sealed class SyncServerStore(TimeProvider timeProvider)
         {
             return new ServerDiagnostics(records.Count, results.Count, changes.Count, nextCursor);
         }
+    }
+
+    /// <summary>Native shutdown retains ownership until every already-started store operation completes.</summary>
+    public void WaitForIdle()
+    {
+        lock (gate) { }
+    }
+
+    private NativeServerState Capture() => new(1, records.Values.ToArray(), results.Values.ToArray(),
+        changes.Select(item => new NativeServerChange(item.Cursor, item.Record)).ToArray(), nextCursor);
+
+    private void Restore(NativeServerState state)
+    {
+        records.Clear();
+        results.Clear();
+        changes.Clear();
+        foreach (var record in state.Records) records.Add(record.Id, record);
+        foreach (var result in state.Results) results.Add(result.MutationId, result);
+        changes.AddRange(state.Changes.Select(item => (item.Cursor, item.Record)));
+        nextCursor = state.NextCursor;
     }
 
     private PushItemResult ApplyMutation(InspectionMutation mutation)

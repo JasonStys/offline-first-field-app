@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "repository": "offline-first-field-app",
+  "version": "1.1.0",
+  "observedAt": "2026-11-11T07:05:48.0243099Z",
+  "sourceBaseline": "82b08143d14cc2851ed1709010788284371c8a01",
+  "sourceStatus": "Development candidate explicitly marked dirty; exact clean-source/hosted validation is a subsequent gate",
+  "tests": {
+    "total": 90,
+    "core": 11,
+    "api": 21,
+    "skipped": 0,
+    "infrastructure": 58
+  },
+  "coverage": {
+    "scope": "Core, Infrastructure and API; excludes native/generated MAUI code",
+    "linePercent": 94.0,
+    "branchPercent": 74.43,
+    "lineFloorPercent": 80
+  },
+  "platformBuilds": {
+    "hostedBuildSdk": "10.0.404",
+    "shippedRuntime": "10.0.15",
+    "neutral": "passed, zero warnings/errors",
+    "localBuildSdk": "10.0.403",
+    "windowsSelfContained": "passed",
+    "android": "passed, zero warnings/errors"
+  },
+  "archiveGuards": {
+    "failed": 0,
+    "passed": 13
+  },
+  "actualNative": {
+    "realOwnedHttp": true,
+    "archiveSha256": "d4b110ea6b39cc1e02c1baf5aef9d32a305119549879b8c82e31128bd5f8b56b",
+    "launches": 2,
+    "actualControls": true,
+    "formerOwnedListenerAbsent": true,
+    "releasedProfileLocks": true,
+    "sameRetainedRecords": true,
+    "exitCodes": [
+      0,
+      0
+    ],
+    "pendingIoQuit": true
+  },
+  "limits": [
+    "Unsigned unpackaged Windows x64; no clean-machine/signing/mobile certification",
+    "One trusted OS-owner with plaintext SQLite/checkpoint; reference device labels are not authenticated actors",
+    "Standalone API retains volatile default; native checkpoint is bounded and single-process",
+    "Full source coverage excludes native GUI; hosted full-client CodeQL and native lanes are separate",
+    "Observed native candidate is development-source-labelled, not a published/installed acceptance claim"
+  ],
+  "windowsProfileAdmission": {
+    "actualJunctionCases": 2,
+    "noFollowFinalReparse": true,
+    "normalRecoveryFilesPreserved": true,
+    "actualNtfsHardlinkCases": 5,
+    "passed": 14,
+    "skipped": 0,
+    "nonWindowsNtfsTests": "Five explicitly skipped; production native distribution is Windows only",
+    "metadataOnly": true
+  },
+  "firstHostedNativeAttempt": {
+    "correction": "Same explicit Release and PublishReadyToRun=true vector for restore and publish; optimization retained",
+    "stage": "PublishReadyToRun after successful MAUI compilation",
+    "hostedCorrection": "pending",
+    "run": 42977738882,
+    "conclusion": "failure",
+    "job": 130380667709,
+    "error": "NETSDK1094"
+  },
+  "packagingEvidenceCorrection": {
+    "hostedFailure": {
+      "job": 130397775631,
+      "cause": "SDK10.0.404 contains the pinned apphost; restore need not download that NuGet archive",
+      "stage": "Post-publish apphost signature/notice evidence",
+      "run": 42983071763,
+      "originalCi": "success",
+      "codeQl": "success"
+    },
+    "freshHostedAcceptance": "pending",
+    "actualZipRegressionCases": 8,
+    "localCandidateSourceDirty": true,
+    "localRelocatedNativeLaunches": 2,
+    "fix": "Explicit exact host package evidence download, archive signature verification and bounded fixed metadata/notice reading; no project-reference or SDK/global-cache change",
+    "localBothExitCodes": [
+      0,
+      0
+    ]
+  }
+}

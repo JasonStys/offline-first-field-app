@@ -5,10 +5,11 @@
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   IgnorableNamespaces="uap rescap">
-  <Identity Name="fieldops-package-name-placeholder" Publisher="CN=User Name" Version="0.0.0.0" />
+  <Identity Name="dev.jasonstys.fieldops" Publisher="CN=Jason Stys" Version="1.1.0.0" />
   <mp:PhoneIdentity PhoneProductId="12F8CFA8-6966-42EB-BE2E-5B9FF32E55A4" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>$placeholder$</DisplayName>
+    <!-- Preserve the legacy unpackaged MAUI data-path identity. Authorship is in UI and PE metadata. -->
     <PublisherDisplayName>User Name</PublisherDisplayName>
     <Logo>$placeholder$.png</Logo>
   </Properties>

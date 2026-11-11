@@ -12,6 +12,15 @@ It emphasizes explicit failure states and evidence: offline work is durable, tra
 return commands to a retryable state, version conflicts require review, and no timestamp silently
 chooses a winner for user-authored text.
 
+**FieldOps Offline 1.1.0** adds a self-contained Windows application using these real components:
+edit accepted inspection rows, search notes, export visible data, prepare a real two-technician
+conflict, and restart the owned durable local companion without losing accepted versions. The
+application starts offline and explains its single-OS-owner boundary in **Help & privacy**.
+See [native usage, screenshots and reproduction](docs/native-application.md) and
+[observed native validation](docs/reports/native-application-2026-11-11.md). Packaging and local
+candidate validation are implemented; a public download and PC installation require separate
+exact-source acceptance.
+
 ## Sixty-second quickstart
 
 Prerequisite: [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0).
@@ -32,7 +41,9 @@ Run the API separately:
 dotnet run --project src/FieldOps.Api --urls http://127.0.0.1:5080
 ```
 
-On Windows with the MAUI workload, launch `src/FieldOps.App/FieldOps.App.csproj`. Android source is
+For the complete Windows package, extract every file and open `FieldOps.App.exe`; no development
+runtime or IDE is required. To build from source, use the [native build guide](docs/native-application.md).
+On Windows with the MAUI workload, developers can also launch `src/FieldOps.App/FieldOps.App.csproj`. Android source is
 also compiled in CI; connecting an emulator requires trusting a development HTTPS certificate as
 described in [operations](docs/operations.md).
 
@@ -84,13 +95,19 @@ See [architecture](docs/architecture.md), [data model](docs/data-model.md), and
 | Duplicate delivery | Replays the original result by mutation ID without creating a second change |
 | Attachments | Streams JPEG/PNG fixtures, caps them at 5 MiB, and records SHA-256 integrity |
 | Diagnostics | Reports non-sensitive counts and explicit applied/conflicted/rejected totals |
-| Local search | Uses parameterized, index-backed prefix matching with escaped GLOB input |
+| Local search | Native literal title/notes search is bounded to 100 displayed rows; the original indexed prefix API remains available |
+| Native local companion | Explicitly owns its fresh loopback service, durable records/idempotency checkpoint and generation pairing |
+| Native editing and export | Edits accepted rows without changing identity; exports visible rows to a new bounded JSON file |
+| Completion-based Quit | Real local operations and owned service drain before window/profile ownership is released |
 
 ### Resolve an inspection conflict
 
 After **Sync now** reports a conflict, select it in **Resolve synchronization conflicts**. Review the recorded original, your local value and the server value for each field. Disjoint changes are preselected; fields changed differently by both writers require an explicit local/remote choice. Empty notes can be selected deliberately. **Cancel review** leaves both copies untouched. **Save resolution offline** replaces the blocked command atomically with a new idempotency key and the reviewed server version. Sync it when connected; a newer server edit produces another review rather than being overwritten. Older pending drafts with no recorded base display that fact and never invent previous content.
 
-This remains an isolated synthetic reference app: the API has no authentication, tenant separation or encrypted local storage. See the [security model](docs/security.md) before using any real data. The new workflow does not broaden network exposure.
+This remains an isolated synthetic reference app: the native service uses an ephemeral capability
+and strict loopback/Host/Origin checks, but has no authenticated enterprise actors, tenant separation
+or encrypted local storage. The standalone API retains its original development behavior. See the
+[security model](docs/security.md) before using any real data.
 
 ## Verification
 
@@ -137,6 +154,7 @@ tracked separately from the portable view-model tests.
 - [Testing strategy](docs/testing.md)
 - [Security model](docs/security.md)
 - [Operations and recovery](docs/operations.md)
+- [Native application usage and screenshots](docs/native-application.md)
 - [Accessibility](docs/accessibility.md)
 - [Complexity and performance](docs/complexity.md)
 - [Limitations](docs/limitations.md)

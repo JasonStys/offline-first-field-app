@@ -1,0 +1,70 @@
+# File: native-app.yml
+# Purpose: Test the actual self-contained MAUI controls/core after complete archive relocation.
+name: Native application
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      retain_package:
+        description: Retain the complete unsigned package from trusted main for owner review
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-app-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    name: Actual Windows MAUI offline application
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out exact source without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up current .NET10 SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 10.0.404
+      - name: Install Windows MAUI build workload
+        run: dotnet workload install maui-windows
+      - name: Verify actual archive refusal fixtures
+        run: pwsh -NoProfile -File tests/native-archive.tests.ps1
+      - name: Verify bounded fixed runtime evidence fixtures
+        run: pwsh -NoProfile -File tests/native-host-evidence.tests.ps1
+      - name: Build current runtime and verify signed NuGet runtime bytes
+        run: pwsh -NoProfile -File scripts/build-native.ps1 -Output release/windows/bundle
+      - name: Relocate complete ZIP and use actual native controls twice
+        run: pwsh -NoProfile -File scripts/archive-native.ps1 -Bundle release/windows/bundle -Proof artifacts/native/windows
+      - name: Retain bounded actual-native receipts and screenshots
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: native-field-acceptance
+          path: |
+            artifacts/native/windows/summary.json
+            artifacts/native/windows/first/*.json
+            artifacts/native/windows/first/*.png
+            artifacts/native/windows/reopen/*.json
+            artifacts/native/windows/reopen/*.png
+            artifacts/native/windows/startup-failure-*.json
+          if-no-files-found: warn
+          retention-days: 1
+      - name: Retain complete unsigned payload only after explicit trusted-main opt-in
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.retain_package
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: FieldOpsOffline-1.1.0-windows-x64
+          path: |
+            release/windows/FieldOpsOffline-1.1.0-windows-x64.zip
+            release/windows/FieldOpsOffline-1.1.0-windows-x64.zip.sha256
+          if-no-files-found: error
+          retention-days: 1

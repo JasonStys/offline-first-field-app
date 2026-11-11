@@ -1,0 +1,15 @@
+<!-- File: Directory.Build.targets
+     Purpose: Pin only the.NET runtime/host packs for the explicit portable build.
+     Windows SDK reference-pack versions are different identities and remain SDK-selected. -->
+<Project>
+  <Target Name="PinFieldOpsNativeRuntime" BeforeTargets="ProcessFrameworkReferences"
+          Condition="'$(FieldOpsNativeRuntimeVersion)' != ''">
+    <Error Condition="'$(FieldOpsNativeRuntimeVersion)' != '10.0.15'" Text="Review a new native runtime pin before changing the accepted package." />
+    <ItemGroup>
+      <FrameworkReference Update="Microsoft.NETCore.App" RuntimeFrameworkVersion="$(FieldOpsNativeRuntimeVersion)" />
+      <FrameworkReference Update="Microsoft.AspNetCore.App" RuntimeFrameworkVersion="$(FieldOpsNativeRuntimeVersion)" />
+      <KnownAppHostPack Update="Microsoft.NETCore.App" Condition="'%(KnownAppHostPack.TargetFramework)' == 'net10.0'"
+                        AppHostPackVersion="$(FieldOpsNativeRuntimeVersion)" />
+    </ItemGroup>
+  </Target>
+</Project>

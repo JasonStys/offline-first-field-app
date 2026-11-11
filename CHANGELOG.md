@@ -2,6 +2,16 @@
 
 All notable changes follow a simplified Keep a Changelog structure.
 
+## 1.1.0 candidate — 2026-11-11
+
+- Genuine self-contained Windows MAUI/WinUI app using the existing SQLite/outbox and real sync API.
+- Explicit durable owned companion, original-authority pairing, restart and safe complete-profile backup boundary.
+- Accepted-row editing, bounded literal notes search/new-file export, and prepared two-technician conflict data inside the full app.
+- Completion-based native Quit/system-close, initialized/busy input guards, correct resource initialization and readable theme colors.
+- .NET/ASP.NET runtime 10.0.15 signature/byte verification, complete ZIP relocation and actual two-launch control journeys.
+- Original Linux CodeQL identity retained with independent actual Windows MAUI extraction; source Android build retained.
+- Local candidate checks are separate from public release, installed-PC acceptance and historical reviewed Word editions.
+
 ## Unreleased — 2026-11-09
 
 - MAUI original/local/remote conflict review with explicit divergent field choices and cancel.

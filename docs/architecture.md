@@ -32,6 +32,12 @@ FieldOps.Core (domain values, limits, contracts, merge policy)
 offline-to-online lifecycle in under a minute. `FieldOps.RepositoryChecks` keeps documentation and
 source metadata verifiable.
 
+The Windows native application uses those same store/coordinator/API components. It starts offline;
+an explicit action creates its own capability-bound loopback Kestrel instance on port 0. Only that
+native composition adds the atomic bounded checkpoint. A public generation pairing and cursor
+check prevent silently substituting a new server for already accepted client state. The standalone
+development server retains its volatile default. See [native architecture and recovery](native-application.md).
+
 ## Write data flow
 
 1. The MAUI view model creates a client-generated ID and validates every field.
@@ -60,9 +66,11 @@ SQLite fits a single-user offline client: transactions couple the cache and outb
 enforce field bounds below the object layer, WAL permits readers during writes, and deployment needs
 no service. Direct `Microsoft.Data.Sqlite` commands keep SQL and transaction boundaries visible.
 
-The server uses an in-memory store deliberately. It isolates and proves protocol semantics without
-pretending that volatile memory is production durability. A production adapter would put records,
-idempotency results, and the cursor log in one durable database transaction.
+The standalone server uses an in-memory store by default. Explicit native companion mode adds a
+full atomic checkpoint, capped at 8 MiB/10,000 entries per collection, and restores prior in-memory
+state if a write fails. This simple inspectable design serializes the bounded complete history under
+one gate; it is not constant-cost persistence or a production server database. A production adapter
+would put records, idempotency results, and the cursor log in one durable database transaction.
 
 ## Scale and reliability
 

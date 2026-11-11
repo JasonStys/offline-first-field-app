@@ -19,21 +19,15 @@ public static class MauiProgram
 #if DEBUG
         builder.Logging.AddDebug();
 #endif
+        var launch = NativeLaunch.Read(Environment.GetCommandLineArgs());
+        builder.Services.AddSingleton(launch);
+        builder.Services.AddSingleton(_ => new NativeRuntime(launch.AcceptanceRoot is null
+            ? FileSystem.AppDataDirectory : Path.Combine(launch.AcceptanceRoot, "profile")));
         builder.Services.AddSingleton(
-            _ => new LocalFieldStore(Path.Combine(FileSystem.AppDataDirectory, "fieldops.db")));
+            services => new LocalFieldStore(Path.Combine(services.GetRequiredService<NativeRuntime>().ProfileDirectory, "fieldops.db")));
         builder.Services.AddSingleton<ILocalFieldStore>(
             services => services.GetRequiredService<LocalFieldStore>());
-        builder.Services.AddSingleton(
-            _ =>
-            {
-#if ANDROID
-                var baseAddress = new Uri("https://10.0.2.2:7080", UriKind.Absolute);
-#else
-                var baseAddress = new Uri("http://127.0.0.1:5080", UriKind.Absolute);
-#endif
-                return new HttpClient { BaseAddress = baseAddress, Timeout = TimeSpan.FromSeconds(5) };
-            });
-        builder.Services.AddSingleton<IRemoteSyncGateway, HttpSyncGateway>();
+        builder.Services.AddSingleton<IRemoteSyncGateway>(services => services.GetRequiredService<NativeRuntime>());
         builder.Services.AddSingleton<SyncCoordinator>();
         builder.Services.AddSingleton<DashboardViewModel>();
         builder.Services.AddSingleton<MainPage>();

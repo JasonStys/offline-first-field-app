@@ -13,6 +13,9 @@ Let `n` be stored records, `q` queued commands, `k` a bounded batch/page, `b` at
 | Server mutation lookup | `O(1)` expected | `O(1)` | Reference dictionaries |
 | Attachment write/hash | `O(b)` | `O(1)` | 80 KiB buffer; `b ≤ 5 MiB` |
 | Prefix search | `O(log n + k)` | `O(k)` | Title B-tree; result cap 200 |
+| Native title/notes search | `O(n * l)` | `O(k)` | Literal text scan over bounded field length `l`; screen cap 100 |
+| Native visible export | `O(k * l)` | `O(k * l)` | Exact already displayed snapshot; at most 100 rows/2 MiB |
+| Native checkpoint commit | `O(s)` | `O(s)` | Full bounded state copy/validation/JSON write; `s` includes records/results/change history |
 
 ## Budgets
 

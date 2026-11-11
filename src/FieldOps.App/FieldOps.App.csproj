@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>net10.0-android</TargetFrameworks>
     <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(NativeWindowsOnly)' == 'true'">net10.0-windows10.0.19041.0</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <RootNamespace>FieldOps.App</RootNamespace>
     <UseMaui>true</UseMaui>
@@ -9,8 +10,11 @@
     <MauiXamlInflator>SourceGen</MauiXamlInflator>
     <ApplicationTitle>FieldOps Offline</ApplicationTitle>
     <ApplicationId>dev.jasonstys.fieldops</ApplicationId>
-    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>1.1.0</ApplicationDisplayVersion>
+    <ApplicationVersion>2</ApplicationVersion>
+    <Version>1.1.0</Version>
+    <Authors>Jason Stys</Authors>
+    <Company>Jason Stys</Company>
     <WindowsPackageType>None</WindowsPackageType>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
@@ -23,7 +27,11 @@
   <ItemGroup>
     <ProjectReference Include="..\FieldOps.Core\FieldOps.Core.csproj" />
     <ProjectReference Include="..\FieldOps.Infrastructure\FieldOps.Infrastructure.csproj" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'windows'" />
     <PackageReference Include="Microsoft.Maui.Controls" />
+  </ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+    <ProjectReference Include="..\FieldOps.Api\FieldOps.Api.csproj" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 </Project>
